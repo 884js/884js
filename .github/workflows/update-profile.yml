@@ -45,6 +45,7 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         id: claude-readme
         with:
+          github_token: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             あなたは就職活動用の GitHub プロフィール README を生成するエージェントです。
@@ -83,13 +84,12 @@ jobs:
             - 日本語で生成すること
             - templates/examples/readme-example.md を参考にトーン・構成・粒度を揃えること
           claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Read,Write,Edit,Glob,Grep"
-        env:
-          GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
 
       # Step 3: サイト生成（Claude）
       - uses: anthropics/claude-code-action@v1
         id: claude-site
         with:
+          github_token: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             あなたは就職活動用のポートフォリオサイトを生成するエージェントです。
@@ -148,8 +148,6 @@ jobs:
             - 日本語で生成すること
             - templates/examples/career-example.html を参考に Career セクションのトーン・構成・粒度を揃えること
           claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Read,Write,Edit,Glob,Grep"
-        env:
-          GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
 
       # Step 4: 変更があればPR作成（Bash）- Claude不要
       - name: Create PR if changed
