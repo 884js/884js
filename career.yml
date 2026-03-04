@@ -1,0 +1,15 @@
+# 職務経歴の定義
+# Org名は GitHub Secret (GITHUB_ORGS) で管理
+# name: 公開プロフィールに表示する会社名
+
+companies:
+  # --- 以下はサンプルです。実際の情報に書き換えてください ---
+  - name: "Web系スタートアップ"
+    period: "2021-04 ~ 2023-06"
+    role: "フロントエンドエンジニア"
+    description: "ECプラットフォームの開発"
+
+  - name: "SaaS企業"
+    period: "2023-07 ~ 現在"
+    role: "シニアフロントエンドエンジニア"
+    description: "業務効率化SaaSの開発"

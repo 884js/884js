@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{USER_NAME}} - Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <img src="{{USER_AVATAR}}" alt="{{USER_NAME}}" class="avatar">
+      <h1>{{USER_NAME}}</h1>
+      <p class="bio">{{USER_BIO}}</p>
+      <div class="social-links">
+        <a href="https://github.com/{{USER_NAME}}" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="skills">
+      <h2>Skills & Technologies</h2>
+      <div class="skills-grid">
+        {{SKILLS_SECTION}}
+      </div>
+    </section>
+
+    <section id="projects">
+      <h2>Featured Projects</h2>
+      <div class="projects-grid">
+        {{PROJECTS_SECTION}}
+      </div>
+    </section>
+
+    <section id="career">
+      <h2>Career</h2>
+      <div class="career-timeline">
+        {{CAREER_SECTION}}
+      </div>
+    </section>
+
+    <section id="stats">
+      <h2>Stats</h2>
+      <div class="stats-grid">
+        {{STATS_SECTION}}
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Last updated: {{GENERATED_DATE}}</p>
+      <p>Auto-generated portfolio</p>
+    </div>
+  </footer>
+</body>
+</html>

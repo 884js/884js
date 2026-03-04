@@ -1,0 +1,46 @@
+name: Update Profile
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # 毎週月曜 UTC 00:00
+  workflow_dispatch:       # 手動実行
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            CLAUDE.mdの指示に従って、プロフィールを更新してください。
+
+            手順:
+            1. scripts/collect-github-data.sh を実行してデータを収集
+            2. data/github-data.json と career.yml を読み込んで分析
+            3. templates/readme-template.md の構成に従って README.md を生成
+            4. templates/site/ をベースに dist/index.html と dist/styles.css を生成
+            5. 変更があればブランチを作成してPRを出す
+               - ブランチ名: chore/update-profile-YYYY-MM-DD
+               - PRタイトル: chore: update profile (YYYY-MM-DD)
+
+            注意:
+            - GITHUB_ORGS のOrg名は絶対に公開しないこと
+            - Privateリポジトリの具体名は出力に含めないこと
+            - 日本語で生成すること
+            - 直接masterにコミットせず、必ずPRを作成すること
+          claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Bash,Read,Write,Edit,Glob,Grep"
+        env:
+          GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
+          GITHUB_ORGS: ${{ secrets.GITHUB_ORGS }}
