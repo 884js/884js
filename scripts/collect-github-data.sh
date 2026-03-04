@@ -56,7 +56,7 @@ fetch_my_commits() {
 
     local response
     response=$(gh api "$url" \
-      --jq '[.[] | {sha: .sha[0:7], message: (.commit.message | split("\n")[0]), date: .commit.author.date}]' 2>/dev/null) || response='[]'
+      --jq '[.[] | {sha: .sha[0:7], message: (.commit.message | split("\n")[0] | gsub("[\\u0000-\\u001f]"; "")), date: .commit.author.date}]' 2>/dev/null) || response='[]'
     api_calls=$((api_calls + 1))
 
     local count
@@ -113,15 +113,14 @@ personal_repos=$(gh repo list "$GITHUB_USER" \
   --limit 100 2>/dev/null) || personal_repos='[]'
 api_calls=$((api_calls + 1))
 
-# --- 3. Org リポジトリ一覧 (環境変数 GITHUB_ORGS から) ---
+# --- 3. Org リポジトリ一覧 (gh api で自動取得) ---
 echo "[3/7] Org リポジトリ取得中..."
 org_repos="[]"
 
-if [ -n "${GITHUB_ORGS:-}" ]; then
-  IFS=',' read -ra orgs <<< "$GITHUB_ORGS"
-  for org in "${orgs[@]}"; do
-    org=$(echo "$org" | xargs)  # trim whitespace
-    [ -z "$org" ] && continue
+orgs=$(gh api user/orgs --jq '.[].login' 2>/dev/null) || orgs=""
+api_calls=$((api_calls + 1))
+if [ -n "$orgs" ]; then
+  for org in $orgs; do
     echo "  - Org: $org"
     repos=$(gh repo list "$org" \
       --no-archived \
@@ -134,7 +133,7 @@ if [ -n "${GITHUB_ORGS:-}" ]; then
     org_repos=$(echo "$org_repos $repos_with_org" | jq -s 'add')
   done
 else
-  echo "  GITHUB_ORGS 未設定 - Orgデータ収集をスキップ"
+  echo "  所属 Org なし - Orgデータ収集をスキップ"
 fi
 
 # --- 4. 言語統計 (個人リポジトリ) ---
@@ -153,7 +152,7 @@ echo "  個人リポ言語数: $(echo "$language_stats" | jq 'keys | length')"
 echo "[5/7] Org リポジトリ言語統計取得中..."
 org_language_stats="{}"
 
-if [ -n "${GITHUB_ORGS:-}" ]; then
+if [ "$(echo "$org_repos" | jq 'length')" -gt 0 ]; then
   org_repo_entries=$(echo "$org_repos" | jq -r '.[] | "\(.org)/\(.name)"' 2>/dev/null || true)
   for entry in $org_repo_entries; do
     langs=$(gh api "repos/$entry/languages" 2>/dev/null) || langs='{}'
@@ -162,7 +161,7 @@ if [ -n "${GITHUB_ORGS:-}" ]; then
   done
   echo "  Org リポ言語数: $(echo "$org_language_stats" | jq 'keys | length')"
 else
-  echo "  スキップ（GITHUB_ORGS 未設定）"
+  echo "  スキップ（Org リポジトリなし）"
 fi
 
 # --- 6. 全リポの自分のコミット一覧（差分更新対応） ---
@@ -200,7 +199,7 @@ for repo in $repo_names; do
 done
 
 # 6b. Org リポジトリのコミット
-if [ -n "${GITHUB_ORGS:-}" ]; then
+if [ "$(echo "$org_repos" | jq 'length')" -gt 0 ]; then
   echo "  Org リポジトリのコミット取得中..."
   org_repo_count=$(echo "$org_repos" | jq 'length')
   for i in $(seq 0 $((org_repo_count - 1))); do
@@ -231,7 +230,7 @@ if [ -n "${GITHUB_ORGS:-}" ]; then
     ')
   done
 else
-  echo "  スキップ（GITHUB_ORGS 未設定）"
+  echo "  スキップ（Org リポジトリなし）"
 fi
 
 # --- 7. 最近のアクティビティ ---
@@ -243,21 +242,32 @@ api_calls=$((api_calls + 1))
 # --- JSON出力 ---
 echo "=== データ結合・出力 ==="
 
+# 各データを一時ファイルに書き出し、--slurpfile で読み込む（引数長制限を回避）
+tmp_dir=$(mktemp -d)
+trap 'rm -rf "$tmp_dir"' EXIT
+
+echo "$user_profile" > "$tmp_dir/profile.json"
+echo "$personal_repos" > "$tmp_dir/personal_repos.json"
+echo "$org_repos" > "$tmp_dir/org_repos.json"
+echo "$language_stats" > "$tmp_dir/language_stats.json"
+echo "$org_language_stats" > "$tmp_dir/org_language_stats.json"
+echo "$recent_activity" > "$tmp_dir/recent_activity.json"
+
 jq -n \
-  --argjson profile "$user_profile" \
-  --argjson personal_repos "$personal_repos" \
-  --argjson org_repos "$org_repos" \
-  --argjson language_stats "$language_stats" \
-  --argjson org_language_stats "$org_language_stats" \
-  --argjson recent_activity "$recent_activity" \
+  --slurpfile profile "$tmp_dir/profile.json" \
+  --slurpfile personal_repos "$tmp_dir/personal_repos.json" \
+  --slurpfile org_repos "$tmp_dir/org_repos.json" \
+  --slurpfile language_stats "$tmp_dir/language_stats.json" \
+  --slurpfile org_language_stats "$tmp_dir/org_language_stats.json" \
+  --slurpfile recent_activity "$tmp_dir/recent_activity.json" \
   '{
     collected_at: (now | strftime("%Y-%m-%dT%H:%M:%SZ")),
-    profile: $profile,
-    personal_repos: $personal_repos,
-    org_repos: $org_repos,
-    language_stats: $language_stats,
-    org_language_stats: $org_language_stats,
-    recent_activity: $recent_activity
+    profile: $profile[0],
+    personal_repos: $personal_repos[0],
+    org_repos: $org_repos[0],
+    language_stats: $language_stats[0],
+    org_language_stats: $org_language_stats[0],
+    recent_activity: $recent_activity[0]
   }' > "$OUTPUT_FILE"
 
 # --- サマリー ---
