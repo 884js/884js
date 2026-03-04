@@ -52,7 +52,7 @@ jobs:
             「この人と話してみたい」と思わせる README を生成すること。
 
             ## 入力データ
-            - data/github-data.json: GitHub API から収集したリポジトリ・コミット・言語データ
+            - data/github-data.json: GitHub API から収集したリポジトリ・PR・コミット・言語データ
             - career.yml: 職務経歴データ
 
             ## 生成ルール

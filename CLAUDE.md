@@ -73,6 +73,18 @@ gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "プロ�
 4. リポジトリの内容を一般化してプロジェクト概要を生成
 5. 具体的なリポジトリ名・プロダクト名・Org名は絶対に含めない
 
+## PRデータの活用方法
+
+- Org リポジトリの `my_merged_prs` からマージ済みPR総数を算出し Stats に表示（個人リポジトリのPRは収集しない）
+- PR の `additions` / `deletions` / `changed_files` からコード貢献の規模感を算出可能
+
+### PRデータのプライバシールール
+
+- 個人リポジトリのPRタイトル・body はそのまま表示可能
+- Org リポジトリのPRタイトル・body は一般化して表示するか非表示にする
+- PR番号・マージ日時は統計情報として利用可能（リポジトリ名が紐づかない形であれば公開可）
+- `additions` / `deletions` / `changed_files` は集計値として公開可能
+
 ## スキルセクションの生成ルール
 
 - `data/github-data.json` の `language_stats` からバイト数ベースで上位言語を抽出
