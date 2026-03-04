@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
   id-token: write
 
 jobs:
@@ -15,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PROFILE_GITHUB_TOKEN }}
 
       - name: Install yq
         run: |
@@ -149,8 +150,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
 
-      # Step 4: 変更があればPR作成（Bash）- Claude不要
-      - name: Create PR if changed
+      # Step 4: 変更があれば master に直接コミット（Bash）- Claude不要
+      - name: Commit and push if changed
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           README_USAGE: ${{ steps.claude-readme.outputs.usage }}
@@ -167,32 +168,22 @@ jobs:
           echo "$SITE_USAGE" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-          # 変更チェック
+          # 変更チェック → コミット → プッシュ
           git add README.md dist/
           if git diff --cached --quiet; then
-            echo "No changes detected. Skipping PR creation."
+            echo "No changes detected."
             echo "## Result" >> $GITHUB_STEP_SUMMARY
             echo "No changes detected." >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
 
-          # ブランチ作成 → コミット → プッシュ → PR
-          DATE=$(date +%Y-%m-%d-%H%M%S)
-          BRANCH="chore/update-profile-${DATE}"
-          git checkout -b "$BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: update profile (${DATE})"
-          git push -u origin "$BRANCH"
-
-          # PR作成
-          USAGE_BODY=$(printf '---\n## Token Usage\n### README Generation\n```json\n%s\n```\n### Site Generation\n```json\n%s\n```' "$README_USAGE" "$SITE_USAGE")
-          gh pr create \
-            --title "chore: update profile (${DATE})" \
-            --body "$(printf 'プロフィールの自動更新\n\n%s' "$USAGE_BODY")"
+          git commit -m "chore: update profile ($(date +%Y-%m-%d))"
+          git push
 
           echo "## Result" >> $GITHUB_STEP_SUMMARY
-          echo "PR created on branch \`${BRANCH}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Committed and pushed to master." >> $GITHUB_STEP_SUMMARY
 
       # キャッシュ保存（データ収集結果を次回に引き継ぐ）
       - uses: actions/cache/save@v4
