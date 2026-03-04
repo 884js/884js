@@ -24,22 +24,14 @@ Claude Code はこの構成に従って、収集データからREADME.mdを動�
   - **Frameworks & Libraries**: リポジトリのトピックから抽出
   - **Tools & Infrastructure**: CI/CD, クラウド, DB等
 
-### 4. Featured Projects
-- Public リポジトリから注目プロジェクトを選出
-- 各プロジェクト:
-  - リポジトリ名（リンク付き）
-  - 説明文
-  - 使用言語バッジ
-  - スター数（あれば）
-
-### 5. Language Stats
+### 4. Language Stats
 - 言語使用比率をバッジまたはテキストで表示
 - 上位5-8言語程度
 
-### 6. Recent Activity
+### 5. Recent Activity
 - 最近のPublicアクティビティを数件表示
 - コミット、PR、Issue等
 
-### 7. フッター
+### 6. フッター
 - ポートフォリオサイトへのリンク
 - 自動生成であることの注記と最終更新日

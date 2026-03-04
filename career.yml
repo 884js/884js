@@ -1,15 +1,35 @@
 # 職務経歴の定義
 # Org名は GitHub Secret (GITHUB_ORGS) で管理
 # name: 公開プロフィールに表示する会社名
+# has_org: GitHub Org のデータが取得可能かどうか
 
 companies:
-  # --- 以下はサンプルです。実際の情報に書き換えてください ---
-  - name: "Web系スタートアップ"
-    period: "2021-04 ~ 2023-06"
-    role: "フロントエンドエンジニア"
-    description: "ECプラットフォームの開発"
+  - name: "株式会社Medii"
+    period: "2025-02 ~ 現在"
+    role: "フロントエンドエンジニア（業務委託）"
+    description: ""
+    has_org: true
 
-  - name: "SaaS企業"
-    period: "2023-07 ~ 現在"
-    role: "シニアフロントエンドエンジニア"
-    description: "業務効率化SaaSの開発"
+  - name: "スマートキャンプ株式会社"
+    period: "2021-09 ~ 2025-02"
+    role: "フロントエンドリードエンジニア"
+    description: "SaaS比較サイトの開発・運営。SPAからSSRへの全面リニューアル、技術選定・アーキテクチャ設計・CI/CD構築・メンバー育成を担当"
+    has_org: false
+
+  - name: "株式会社フォトラクション"
+    period: "2020-05 ~ 2021-08"
+    role: "フロントエンドエンジニア"
+    description: "建設業界向け自社サービスの開発。マイクロサービス化、フロントエンド刷新を担当"
+    has_org: false
+
+  - name: "株式会社キーリンク"
+    period: "2019-07 ~ 2020-04"
+    role: "フロントエンドエンジニア"
+    description: "Webアプリケーションの受託開発。建設・アパレル業界向けシステムの開発を担当"
+    has_org: false
+
+  - name: "ニスコム株式会社"
+    period: "2017-04 ~ 2019-03"
+    role: "インフラエンジニア"
+    description: "サーバ設計・構築およびネットワーク運用に従事"
+    has_org: false

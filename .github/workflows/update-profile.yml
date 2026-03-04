@@ -22,6 +22,7 @@ jobs:
           sudo chmod +x /usr/local/bin/yq
 
       - uses: anthropics/claude-code-action@v1
+        id: claude
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
@@ -41,7 +42,31 @@ jobs:
             - Privateリポジトリの具体名は出力に含めないこと
             - 日本語で生成すること
             - 直接masterにコミットせず、必ずPRを作成すること
+            - データ収集後、org_repos の件数をログ出力して確認すること（jq '.org_repos | length' data/github-data.json）
           claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Bash,Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           GITHUB_ORGS: ${{ secrets.TARGET_ORGS }}
+
+      - name: Comment token usage on PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USAGE: ${{ steps.claude.outputs.usage }}
+        run: |
+          # Step Summary にも出力
+          echo "## Token Usage" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$USAGE" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          # PR が作成されていれば description にトークン使用量を追記
+          BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+          if [ -n "$BRANCH" ] && [ "$BRANCH" != "master" ]; then
+            PR_NUMBER=$(gh pr view "$BRANCH" --json number -q '.number' 2>/dev/null || echo "")
+            if [ -n "$PR_NUMBER" ]; then
+              CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body')
+              APPEND=$(printf '\n\n---\n## Token Usage\n```json\n%s\n```' "$USAGE")
+              gh pr edit "$PR_NUMBER" --body "${CURRENT_BODY}${APPEND}"
+            fi
+          fi

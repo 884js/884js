@@ -80,12 +80,6 @@ gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "プロ�
 - shields.io バッジで表示
 - カテゴリ分け: 言語 / フレームワーク / ツール・インフラ
 
-## 注目プロジェクトの生成ルール
-
-- `personal_repos` から Public リポジトリのみを対象
-- スター数・更新日でソート
-- 各プロジェクトにリンク、説明文、使用言語バッジを付与
-
 ## テンプレートのプレースホルダー
 
 ### README (`templates/readme-template.md`)
@@ -97,7 +91,6 @@ gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "プロ�
 - `{{USER_BIO}}` - 自己紹介
 - `{{USER_AVATAR}}` - アバターURL
 - `{{SKILLS_SECTION}}` - スキル一覧HTML
-- `{{PROJECTS_SECTION}}` - プロジェクト一覧HTML
 - `{{CAREER_SECTION}}` - 職務経歴HTML
 - `{{STATS_SECTION}}` - 統計情報HTML
 - `{{GENERATED_DATE}}` - 生成日時
