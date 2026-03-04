@@ -79,7 +79,7 @@ jobs:
             - 職務経歴の詳細は含めない（ポートフォリオサイトへ誘導）
             - Org名・Privateリポジトリ名は絶対に含めない
             - 日本語で生成すること
-          claude_args: "--model claude-sonnet-4-6 --max-turns 15 --allowedTools Read,Write,Edit,Glob,Grep"
+          claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
 
@@ -137,7 +137,7 @@ jobs:
             ## 制約
             - CLAUDE.md のプライバシー保護ルールを厳守
             - 日本語で生成すること
-          claude_args: "--model claude-sonnet-4-6 --max-turns 15 --allowedTools Read,Write,Edit,Glob,Grep"
+          claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
 
