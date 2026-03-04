@@ -11,8 +11,24 @@ OUTPUT_FILE="$DATA_DIR/github-data.json"
 
 GITHUB_USER="884js"
 MAX_PARALLEL=5
+SKIP_IF_WITHIN_HOURS=24
 
 mkdir -p "$DATA_DIR"
+
+# --- 前回実行からの経過時間チェック ---
+if [ -f "$OUTPUT_FILE" ]; then
+  collected_at=$(jq -r '.collected_at // empty' "$OUTPUT_FILE" 2>/dev/null || echo '')
+  if [ -n "$collected_at" ]; then
+    collected_epoch=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$collected_at" +%s 2>/dev/null || date -d "$collected_at" +%s 2>/dev/null || echo 0)
+    now_epoch=$(date +%s)
+    elapsed_hours=$(( (now_epoch - collected_epoch) / 3600 ))
+    if [ "$elapsed_hours" -lt "$SKIP_IF_WITHIN_HOURS" ]; then
+      echo "=== スキップ: 前回実行から ${elapsed_hours}時間経過（閾値: ${SKIP_IF_WITHIN_HOURS}時間） ==="
+      echo "  既存データを使用: $OUTPUT_FILE"
+      exit 0
+    fi
+  fi
+fi
 
 # 一時ディレクトリ（スクリプト終了時に自動削除）
 tmp_dir=$(mktemp -d)
