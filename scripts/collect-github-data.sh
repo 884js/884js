@@ -300,6 +300,22 @@ else
   echo "  スキップ（Org リポジトリなし）"
 fi
 
+# --- 離脱済み Org のデータを復元 ---
+current_orgs_file="$tmp_dir/current_orgs.json"
+jq '[.[].org // empty] | unique' "$org_repos_file" > "$current_orgs_file"
+
+cached_departed_file="$tmp_dir/cached_departed.json"
+jq --slurpfile current "$current_orgs_file" '
+  .org_repos // [] | [.[] | select(.org as $o | ($current[0] | index($o)) == null)]
+' "$cached_data_file" > "$cached_departed_file"
+
+departed_count=$(jq 'length' "$cached_departed_file")
+if [ "$departed_count" -gt 0 ]; then
+  echo "  離脱済み Org のデータを復元: $departed_count リポ"
+  jq -s 'add' "$org_repos_file" "$cached_departed_file" > "$tmp_dir/org_repos_merged.json"
+  mv "$tmp_dir/org_repos_merged.json" "$org_repos_file"
+fi
+
 # --- JSON出力 ---
 echo "=== データ結合・出力 ==="
 
