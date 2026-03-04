@@ -151,12 +151,12 @@ fetch_my_merged_prs() {
 }
 
 # --- 1. ユーザープロフィール ---
-echo "[1/6] ユーザープロフィール取得中..."
+echo "[1/4] ユーザープロフィール取得中..."
 user_profile=$(gh api "users/$GITHUB_USER" 2>/dev/null) || user_profile='{}'
 api_calls=$((api_calls + 1))
 
 # --- 2. 個人 Public リポジトリ一覧 ---
-echo "[2/6] 個人リポジトリ一覧取得中..."
+echo "[2/4] 個人リポジトリ一覧取得中..."
 personal_repos=$(gh repo list "$GITHUB_USER" \
   --source \
   --no-archived \
@@ -165,7 +165,7 @@ personal_repos=$(gh repo list "$GITHUB_USER" \
 api_calls=$((api_calls + 1))
 
 # --- 3. Org リポジトリ一覧 (gh api で自動取得) ---
-echo "[3/6] Org リポジトリ取得中..."
+echo "[3/4] Org リポジトリ取得中..."
 org_repos="[]"
 
 orgs=$(gh api user/orgs --jq '.[].login' 2>/dev/null) || orgs=""
@@ -187,73 +187,8 @@ else
   echo "  所属 Org なし - Orgデータ収集をスキップ"
 fi
 
-# --- 4. 言語統計 (個人リポジトリ - 並列) ---
-echo "[4/6] 個人リポジトリ言語統計取得中..."
-
-personal_langs_dir="$tmp_dir/personal_langs"
-mkdir -p "$personal_langs_dir"
-
-repo_names=$(echo "$personal_repos" | jq -r '.[].name' 2>/dev/null || true)
-idx=0
-for repo in $repo_names; do
-  (gh api "repos/$GITHUB_USER/$repo/languages" > "$personal_langs_dir/$idx.json" 2>/dev/null || echo '{}' > "$personal_langs_dir/$idx.json") &
-  idx=$((idx + 1))
-  if (( idx % MAX_PARALLEL == 0 )); then wait; fi
-done
-wait
-
-api_calls=$((api_calls + idx))
-
-if ls "$personal_langs_dir"/*.json 1>/dev/null 2>&1; then
-  language_stats=$(jq -s '
-    reduce .[] as $item ({};
-      reduce ($item | keys[]) as $key (.;
-        .[$key] = (.[$key] // 0) + $item[$key]
-      )
-    )
-  ' "$personal_langs_dir"/*.json)
-else
-  language_stats="{}"
-fi
-echo "  個人リポ言語数: $(echo "$language_stats" | jq 'keys | length')"
-
-# --- 5. 言語統計 (Org リポジトリ - 並列) ---
-echo "[5/6] Org リポジトリ言語統計取得中..."
-
-if [ "$(echo "$org_repos" | jq 'length')" -gt 0 ]; then
-  org_langs_dir="$tmp_dir/org_langs"
-  mkdir -p "$org_langs_dir"
-
-  org_repo_entries=$(echo "$org_repos" | jq -r '.[] | "\(.org)/\(.name)"' 2>/dev/null || true)
-  idx=0
-  for entry in $org_repo_entries; do
-    (gh api "repos/$entry/languages" > "$org_langs_dir/$idx.json" 2>/dev/null || echo '{}' > "$org_langs_dir/$idx.json") &
-    idx=$((idx + 1))
-    if (( idx % MAX_PARALLEL == 0 )); then wait; fi
-  done
-  wait
-
-  api_calls=$((api_calls + idx))
-
-  if ls "$org_langs_dir"/*.json 1>/dev/null 2>&1; then
-    org_language_stats=$(jq -s '
-      reduce .[] as $item ({};
-        reduce ($item | keys[]) as $key (.;
-          .[$key] = (.[$key] // 0) + $item[$key]
-        )
-      )
-    ' "$org_langs_dir"/*.json)
-  else
-    org_language_stats="{}"
-  fi
-  echo "  Org リポ言語数: $(echo "$org_language_stats" | jq 'keys | length')"
-else
-  org_language_stats="{}"
-  echo "  スキップ（Org リポジトリなし）"
-fi
-
-# --- 6. マージ済みPR取得 (Org リポジトリ - 並列GraphQL) ---
-echo "[6/6] Org リポジトリのマージ済みPR取得中..."
+# --- 4. マージ済みPR取得 (Org リポジトリ - 並列GraphQL) ---
+echo "[4/4] Org リポジトリのマージ済みPR取得中..."
 
 org_repos_file="$tmp_dir/org_repos_wip.json"
 echo "$org_repos" > "$org_repos_file"
@@ -339,21 +274,15 @@ echo "=== データ結合・出力 ==="
 echo "$user_profile" > "$tmp_dir/profile.json"
 echo "$personal_repos" > "$tmp_dir/personal_repos.json"
 cp "$org_repos_file" "$tmp_dir/org_repos.json"
-echo "$language_stats" > "$tmp_dir/language_stats.json"
-echo "$org_language_stats" > "$tmp_dir/org_language_stats.json"
 jq -n \
   --slurpfile profile "$tmp_dir/profile.json" \
   --slurpfile personal_repos "$tmp_dir/personal_repos.json" \
   --slurpfile org_repos "$tmp_dir/org_repos.json" \
-  --slurpfile language_stats "$tmp_dir/language_stats.json" \
-  --slurpfile org_language_stats "$tmp_dir/org_language_stats.json" \
   '{
     collected_at: (now | strftime("%Y-%m-%dT%H:%M:%SZ")),
     profile: $profile[0],
     personal_repos: $personal_repos[0],
-    org_repos: $org_repos[0],
-    language_stats: $language_stats[0],
-    org_language_stats: $org_language_stats[0]
+    org_repos: $org_repos[0]
   }' > "$OUTPUT_FILE"
 
 # --- サマリー ---
@@ -363,7 +292,5 @@ echo ""
 echo "=== 完了: $OUTPUT_FILE ==="
 echo "個人リポジトリ: $(echo "$personal_repos" | jq 'length') 件"
 echo "Orgリポジトリ: $(jq 'length' "$org_repos_file") 件"
-echo "個人リポ言語数: $(echo "$language_stats" | jq 'keys | length')"
-echo "Org リポ言語数: $(echo "$org_language_stats" | jq 'keys | length')"
 echo "マージ済みPR数: $total_prs 件"
 echo "API コール数: $api_calls 回"

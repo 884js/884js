@@ -2,34 +2,167 @@
 # Org名は GitHub Secret (GITHUB_ORGS) で管理
 # name: 公開プロフィールに表示する会社名
 # has_org: GitHub Org のデータが取得可能かどうか
+# has_org: true かつ projects が空の場合、GitHub データから自動生成
+
+profile:
+  name: "林悠暉"
+  summary: |
+    Webエンジニアとして約7年の実務経験があり、直近5年はフロントエンド領域を中心に活動しています。
+    React / Next.js / TypeScript を軸としたSPA・SSR開発が得意で、技術選定・アーキテクチャ設計からCI/CD構築、メンバー育成まで一貫して担当できます。
+    Node.jsによるバックエンド実装やスキーマ駆動でのAPI設計も対応可能です。
+    キャリア初期にはインフラエンジニアとしてサーバ設計・ネットワーク運用に従事しており、フロントエンドからインフラまで幅広い知見を持っています。
+  strengths:
+    - title: "フロントエンド設計・実装"
+      detail: "React / Next.js（App Router）でのSPA・SSR開発、featuresベースのディレクトリ設計"
+    - title: "スキーマ駆動開発"
+      detail: "OpenAPI定義からのクライアント自動生成（orval）を活用したAPI連携"
+    - title: "開発基盤の改善"
+      detail: "CI/CD整備、ビルド高速化（Webpack→Vite移行でビルド時間を最大90%短縮）、ChatOpsによるリリース自動化"
+
+skills:
+  languages:
+    - TypeScript
+    - JavaScript
+    - Go
+    - Ruby
+    - HTML
+    - CSS
+  frameworks:
+    - React
+    - Next.js
+    - Vue.js
+    - Nuxt.js
+    - NestJS
+    - Node.js
+    - Hono
+    - Ruby on Rails
+  tools:
+    - Docker
+    - AWS
+    - Terraform
+    - GitHub Actions
+    - PostgreSQL
+    - Cloudflare
+  practices:
+    - スキーマ駆動開発（OpenAPI）
+    - アジャイル / スクラム
+    - DB設計
+    - featuresベースのディレクトリ設計
+  devops:
+    - GitHub ActionsによるCI/CD構築
+    - ChatOps（Slack Bot）によるデプロイ自動化
 
 companies:
   - name: "株式会社Medii"
     period: "2025-02 ~ 現在"
     role: "フロントエンドエンジニア（業務委託）"
-    description: ""
+    business: "医療系プラットフォームの開発"
     has_org: true
+    projects: []  # GitHub データから自動生成
 
   - name: "スマートキャンプ株式会社"
     period: "2021-09 ~ 2025-02"
     role: "フロントエンドリードエンジニア"
-    description: "SaaS比較サイトの開発・運営。SPAからSSRへの全面リニューアル、技術選定・アーキテクチャ設計・CI/CD構築・メンバー育成を担当"
+    business: "SaaS比較サイトの開発・運営"
     has_org: false
+    projects:
+      - name: "サイトフルリニューアル"
+        period: "2023-12 ~ 2024-12"
+        role: "フロントエンドリードエンジニア"
+        team: "最大13名（PdM 2 / FE 4 / BE 5 / デザイナー 2）"
+        tech: [Next.js, TypeScript, React, CSS Modules, Storybook, Ruby on Rails 7]
+        summary: "SPAからSSRへの全面移行を伴うフルリニューアル。フロントエンドの技術選定・アーキテクチャ設計・CI/CD構築・メンバー育成を一貫して担当。"
+        achievements:
+          - "Next.js + pnpm workspacesによるモノレポ構成を採用。route handler / server actionsを活用し、セキュリティとBE連携を最適化"
+          - "GitHub ActionsでOpenAPIクライアント自動生成・ECS自動デプロイを実現。ESLint / Prettier / stylelintを導入し、コード品質を標準化"
+          - "トップ・サービス・カテゴリーページの構造を最適化し、Lighthouseで高スコアを達成。比較表機能をゼロベースでSSR再構築"
+          - "ペアプロ・モブプロを通じてFE経験の浅いメンバーを支援。全員が自立してタスクを完遂できる状態に引き上げ"
+
+      - name: "比較表機能リニューアル"
+        period: "2022-12 ~ 2023-10"
+        role: "開発エンジニア（PJリード）"
+        team: "5名（PdM 1 / エンジニア 3 / デザイナー 1）"
+        tech: [TypeScript, React, Recoil, React Hook Form, Vite, Vitest, Ruby on Rails 6]
+        summary: "約2年間停止していた比較表機能リニューアルを再始動。設計・開発・チーム調整を兼任し、カンバン方式で推進。"
+        achievements:
+          - "JSONカラムからRDBベースのスキーマに再設計。請求機能を障害ゼロでリリースし、売上への影響を回避"
+          - "Vite導入によりビルド時間を1分→7秒、ホットリロードを30秒→1秒未満に改善"
+          - "RESTful API設計方針をチームで合意形成し、実装のばらつきと手戻りを削減"
+          - "React勉強会の主催、技術ブログの執筆"
+
+      - name: "サービス運用保守"
+        period: "2021-09 ~ 2022-11"
+        role: "開発エンジニア"
+        team: "最大10名（PdM 2 / エンジニア 6）"
+        tech: [Ruby on Rails 6, Vue.js 2.7, Node.js 14, TypeScript]
+        summary: "約8年運用されてきたSaaSの機能追加・パフォーマンス改善・開発基盤の刷新を担当。"
+        achievements:
+          - "esbuild-loader導入 + Webpack5移行により、ビルド時間を6:43→1:43に短縮（約75%改善）"
+          - "yarn workspaceでjQuery / Vue.js / React混在環境を統合。環境構築ミスをゼロに"
+          - "Slack Bot（Serverless Framework）を開発し、ボタン操作でPR確認・GitHub Actions実行を可能に。リリース頻度を向上させ、半年以上継続運用"
 
   - name: "株式会社フォトラクション"
     period: "2020-05 ~ 2021-08"
     role: "フロントエンドエンジニア"
-    description: "建設業界向け自社サービスの開発。マイクロサービス化、フロントエンド刷新を担当"
+    business: "建設業界向け自社サービスの開発・提供"
     has_org: false
+    projects:
+      - name: "電子小黒板機能フルリニューアル"
+        period: "2021-06 ~ 2021-08"
+        role: "フロントエンドエンジニア"
+        tech: [Vue.js, Vite, Backbone.js, Atomic Design]
+        summary: "工事写真撮影プロセスの効率化を目的に、電子小黒板機能をフルリニューアル。Backbone.js→Vue.jsへの移行とVite導入によるビルド高速化を実現。"
+
+      - name: "労務安全サービスのマイクロサービス化"
+        period: "2020-11 ~ 2021-05"
+        role: "フロントエンドエンジニア"
+        tech: [Nuxt.js, Vue.js, GitHub Actions, AWS ECS]
+        summary: "Laravel本体と密結合していたフロントエンドを分離し、独立リリース可能な構成に刷新。Vue.js→Nuxt.js移行、GitHub ActionsによるECS自動デプロイ環境を構築。"
+
+      - name: "新規労務安全サービスの開発"
+        period: "2020-05 ~ 2020-11"
+        role: "フロントエンドエンジニア"
+        tech: [Vue.js, Nuxt.js, Nest.js, PSPDFKit]
+        summary: "建設現場の労務安全書類をDX化するサービスを開発。クライアントサイドで動作が遅かったPDF生成処理を、Nest.jsによるサーバーサイドAPIに移行してパフォーマンスを改善。"
 
   - name: "株式会社キーリンク"
     period: "2019-07 ~ 2020-04"
     role: "フロントエンドエンジニア"
-    description: "Webアプリケーションの受託開発。建設・アパレル業界向けシステムの開発を担当"
+    business: "Webアプリケーションの受託開発"
     has_org: false
+    projects:
+      - name: "建設業界向け現場管理サービス"
+        period: "3ヶ月"
+        role: "フロントエンドエンジニア"
+        tech: [Vue.js]
+        summary: "Vue.jsでのプロトタイプ開発、API設計・実装"
+
+      - name: "アパレル業界向け生産管理システム"
+        period: "3ヶ月"
+        role: "フロントエンドエンジニア"
+        tech: [React, Vue.js, GCP]
+        summary: "React / Vue.jsでの実装、GCPインフラ構築"
+
+      - name: "建設業界向け入退場管理アプリ"
+        period: "3ヶ月"
+        role: "フロントエンドエンジニア"
+        tech: [Vue.js, Jenkins]
+        summary: "Vue.jsコンポーネント実装、JenkinsによるCI構築"
 
   - name: "ニスコム株式会社"
     period: "2017-04 ~ 2019-03"
     role: "インフラエンジニア"
-    description: "サーバ設計・構築およびネットワーク運用に従事"
+    business: "インフラ設計構築・運用"
     has_org: false
+    projects:
+      - name: "サーバ設計・構築業務"
+        period: "9ヶ月"
+        role: "インフラエンジニア"
+        tech: [Windows Server]
+        summary: "Windows Serverの詳細設計・構築、顧客折衝、テスト仕様書作成"
+
+      - name: "大学系ネットワーク運用・保守"
+        period: "9ヶ月"
+        role: "インフラエンジニア"
+        tech: [Linux, ネットワーク機器, 監視サーバー]
+        summary: "ネットワーク機器リプレース、監視サーバー構築、firewall設定"

@@ -41,66 +41,22 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
 
-      # Step 2: README生成（Claude）
-      - uses: anthropics/claude-code-action@v1
-        id: claude-readme
-        with:
-          github_token: ${{ secrets.PROFILE_GITHUB_TOKEN }}
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: |
-            あなたは就職活動用の GitHub プロフィール README を生成するエージェントです。
-
-            ## 目的
-            採用担当・技術面接官が GitHub プロフィールを見たとき、
-            「この人と話してみたい」と思わせる README を生成すること。
-
-            ## 入力データ
-            - data/github-data.json: GitHub API から収集したリポジトリ・PR・コミット・言語データ
-            - career.yml: 職務経歴データ
-
-            ## 生成ルール
-            templates/readme-template.md の構成に従い、以下の観点でデータを分析・整形すること。
-
-            ### 1. About Me
-            - career.yml の経歴から「インフラ→フロントエンド→リード」のキャリア成長を簡潔に示す
-            - 現在の専門領域と得意なことを 2-3 文で
-
-            ### 2. Skills（技術スタック）
-            - language_stats + org_language_stats を合算し、バイト数上位の言語をバッジ表示
-            - personal_repos と org_repos の repositoryTopics からフレームワーク・ツールを抽出
-            - カテゴリ: Languages / Frameworks / Tools & Infrastructure
-            - shields.io バッジを使用
-
-            ### 3. Stats（実績を数字で見せる）
-            - 総コミット数（personal_repos + org_repos の my_commits を合算）
-            - リポジトリ数（personal + org）
-            - GitHub活動年数（profile.created_at から算出）
-            - 個別リポジトリの一覧は載せない
-
-            ### 制約
-            - CLAUDE.md の README 生成ルールに従うこと
-            - 職務経歴の詳細は含めない（ポートフォリオサイトへ誘導）
-            - Org名・Privateリポジトリ名は絶対に含めない
-            - 日本語で生成すること
-            - templates/examples/readme-example.md を参考にトーン・構成・粒度を揃えること
-          claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Read,Write,Edit,Glob,Grep"
-
-      # Step 3: サイト生成（Claude）
+      # Step 2: 職務経歴書サイト生成（Claude）
       - uses: anthropics/claude-code-action@v1
         id: claude-site
         with:
           github_token: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            あなたは就職活動用のポートフォリオサイトを生成するエージェントです。
+            あなたは就職活動用の職務経歴書サイトを生成するエージェントです。
 
             ## 目的
-            採用担当が「この人の技術力と経験が具体的にわかる」ポートフォリオを生成すること。
-            README では伝えきれない職務経歴の詳細と、データに裏付けされた技術力を示す。
+            採用担当が「この人の技術力と経験が具体的にわかる」職務経歴書サイトを生成すること。
+            プロジェクト単位の詳細な経歴と、データに裏付けされた技術力を示す。
 
             ## 入力データ
             - data/github-data.json: GitHub API から収集したデータ
-            - career.yml: 職務経歴データ
+            - career.yml: 職務経歴データ（プロフィール・スキル・会社・プロジェクト情報）
             - templates/site/template.html: HTML テンプレート
             - templates/site/styles.css: スタイルシート
 
@@ -110,65 +66,52 @@ jobs:
 
             ## 各セクションの生成ルール
 
+            ### ヘッダー
+            - career.yml の profile.name を表示
+            - profile.summary を概要として表示
+            - profile.strengths を得意領域として表示
+
             ### Skills セクション ({{SKILLS_SECTION}})
-            - language_stats + org_language_stats を合算
-            - バイト数の割合を計算し、上位言語をプログレスバー付きで表示
-            - repositoryTopics からフレームワーク・ツールをタグ表示
+            - career.yml の skills セクションから全カテゴリ（languages / frameworks / tools / practices / devops）をタグ表示
 
             ### Career セクション ({{CAREER_SECTION}})
             career.yml の各会社について:
-            - 会社名・期間・役職を表示
-            - description がある場合: そのまま使用し、データで補強
-            - description が空の場合: org_repos のデータから職務内容を自動推定する
-              - 該当 Org のリポジトリの言語・トピックから技術スタックを推定
-              - リポジトリの description や構成から「どんな種類のプロジェクトか」を一般化して推定
-                （例: 「Webアプリケーション開発」「API基盤構築」「管理画面開発」等）
-              - my_merged_prs の分析:
-                - title と body から担当した機能領域・技術的アプローチを推定
-                  （例: 「認証基盤の構築」「パフォーマンス改善」「テスト基盤整備」等）
-                - PRの規模（additions/deletions/changed_files）から貢献度を推定
-                - PRの時系列（merged_at）から成長や役割変化を読み取る
-                - ただし具体的なプロダクト名・機能名・ドメイン固有の用語は一般化する
-              - コミットメッセージの分析: my_commits[].message から開発内容を推定
-                - feat: → 機能開発、fix: → バグ修正、refactor: → リファクタリング
-                - メッセージのキーワードから「認証機能」「決済連携」「パフォーマンス改善」等を抽出
-                - ただし具体的なプロダクト名・機能名が特定できる表現は一般化する
-              - コミット頻度・量から担当の深さを推定
-            - org_repos から該当 Org の技術スタック（言語・トピック）を自動抽出して「使用技術」として追加
-            - 該当 Org でのコミット数・リポジトリ数を規模感として表示
-            - 具体的なリポジトリ名・Org名・プロダクト名は絶対に含めない
+            - 会社名・期間・役職・事業内容を表示
+            - projects が定義されている場合: プロジェクト単位で詳細表示
+              - プロジェクト名・期間・役割・チーム規模・技術スタック・概要・成果
+            - has_org: true かつ projects が空の場合:
+              - org_repos のデータから職務内容を自動推定する
+              - my_merged_prs の title/body から担当した機能領域・技術的アプローチを推定
+              - PRの規模（additions/deletions/changed_files）から貢献度を推定
+              - 具体的なリポジトリ名・Org名・プロダクト名は絶対に含めない
+              - ドメイン固有の用語は一般化する
+            - templates/examples/career-example.html を参考に構成・粒度を揃えること
 
             ### Stats セクション ({{STATS_SECTION}})
-            - 総コミット数、リポジトリ数、言語数
-            - 言語別の割合（円グラフ的な表現、CSS のみで）
-            - 活動年数
+            - マージ済みPR数（org_repos の my_merged_prs を合算）
+            - 公開リポジトリ数
+            - エンジニア経験年数（career.yml の最古の会社から算出）
 
             ## 制約
             - CLAUDE.md のプライバシー保護ルールを厳守
             - 日本語で生成すること
-            - templates/examples/career-example.html を参考に Career セクションのトーン・構成・粒度を揃えること
           claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Read,Write,Edit,Glob,Grep"
 
-      # Step 4: 変更があればPR作成（Bash）- Claude不要
+      # Step 3: 変更があればPR作成（Bash）- Claude不要
       - name: Create PR if changed
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
-          README_USAGE: ${{ steps.claude-readme.outputs.usage }}
           SITE_USAGE: ${{ steps.claude-site.outputs.usage }}
         run: |
           # Token Usage を Step Summary に出力
           echo "## Token Usage" >> $GITHUB_STEP_SUMMARY
-          echo "### README Generation" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          echo "$README_USAGE" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
           echo "### Site Generation" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           echo "$SITE_USAGE" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
           # 変更チェック
-          git add README.md dist/
+          git add dist/
           if git diff --cached --quiet; then
             echo "No changes detected."
             echo "## Result" >> $GITHUB_STEP_SUMMARY
@@ -185,7 +128,7 @@ jobs:
           git push -u origin "$BRANCH"
           gh pr create \
             --title "chore: update profile ($(date +%Y-%m-%d))" \
-            --body "プロフィールの自動更新"
+            --body "職務経歴書サイトの自動更新"
 
           echo "## Result" >> $GITHUB_STEP_SUMMARY
           echo "PR created from branch $BRANCH" >> $GITHUB_STEP_SUMMARY

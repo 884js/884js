@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{USER_NAME}} - Portfolio</title>
+  <title>{{USER_NAME}} - 職務経歴書</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,21 +16,26 @@
       <h1>{{USER_NAME}}</h1>
       <p class="bio">{{USER_BIO}}</p>
       <div class="social-links">
-        <a href="https://github.com/{{USER_NAME}}" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/884js" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
   </header>
 
   <main class="container">
+    <section id="summary">
+      <h2>概要</h2>
+      {{SUMMARY_SECTION}}
+    </section>
+
     <section id="skills">
-      <h2>Skills & Technologies</h2>
+      <h2>スキルセット</h2>
       <div class="skills-grid">
         {{SKILLS_SECTION}}
       </div>
     </section>
 
     <section id="career">
-      <h2>Career</h2>
+      <h2>職務経歴詳細</h2>
       <div class="career-timeline">
         {{CAREER_SECTION}}
       </div>
@@ -47,7 +52,6 @@
   <footer>
     <div class="container">
       <p>Last updated: {{GENERATED_DATE}}</p>
-      <p>Auto-generated portfolio</p>
     </div>
   </footer>
 </body>
