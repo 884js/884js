@@ -28,7 +28,7 @@ Claude Code はこの構成に従って、収集データからREADME.mdを動�
 
 ### 4. Stats
 - GitHub での活動実績を数字で表示
-- 総コミット数（personal_repos + org_repos の my_commits を合算）
+- マージ済みPR数（org_repos の my_merged_prs を合算）
 - リポジトリ数（personal + org 合計）
 - GitHub 活動年数（profile.created_at から算出）
 - 個別リポジトリの一覧は載せない

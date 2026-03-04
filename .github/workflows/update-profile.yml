@@ -38,7 +38,6 @@ jobs:
           echo "personal_repos: $(jq '.personal_repos | length' data/github-data.json)" >> $GITHUB_STEP_SUMMARY
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
-          GITHUB_ORGS: ${{ secrets.TARGET_ORGS }}
 
       # Step 2: README生成（Claude）
       - uses: anthropics/claude-code-action@v1
@@ -53,7 +52,7 @@ jobs:
             「この人と話してみたい」と思わせる README を生成すること。
 
             ## 入力データ
-            - data/github-data.json: GitHub API から収集したリポジトリ・コミット・言語データ
+            - data/github-data.json: GitHub API から収集したリポジトリ・PR・コミット・言語データ
             - career.yml: 職務経歴データ
 
             ## 生成ルール
@@ -83,7 +82,6 @@ jobs:
           claude_args: "--model claude-sonnet-4-6 --max-turns 15 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
-          GITHUB_ORGS: ${{ secrets.TARGET_ORGS }}
 
       # Step 3: サイト生成（Claude）
       - uses: anthropics/claude-code-action@v1
@@ -142,7 +140,6 @@ jobs:
           claude_args: "--model claude-sonnet-4-6 --max-turns 15 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
-          GITHUB_ORGS: ${{ secrets.TARGET_ORGS }}
 
       # Step 4: 変更があればPR作成（Bash）- Claude不要
       - name: Create PR if changed

@@ -11,7 +11,7 @@ bash scripts/collect-github-data.sh
 ```
 - `data/github-data.json` にJSON形式で出力される
 - `gh` CLI を使用（`GH_TOKEN` 環境変数でPrivateリポジトリにもアクセス可能）
-- Org リポジトリの収集には環境変数 `GITHUB_ORGS`（カンマ区切り）が必要
+- Org リポジトリは `gh api user/orgs` で所属 Org を自動取得して収集
 
 ### 2. README.md 生成
 
@@ -53,7 +53,7 @@ gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "プロ�
 ### 重要: プライバシー保護
 
 **絶対に公開してはいけない情報:**
-- Org名（GitHub Secret `GITHUB_ORGS` で管理。コード・生成物に含めない）
+- Org名（`gh api` で自動取得。コード・生成物に含めない）
 - Privateリポジトリの具体的なリポジトリ名
 - プロダクト名・サービス名・ドメイン固有の用語
 - 社内ツール名や内部システム名
@@ -67,11 +67,23 @@ gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "プロ�
 - 担当領域（フロントエンド/バックエンド/インフラ等）
 
 ### 経歴生成の手順
-1. `career.yml` の各会社に対して、環境変数 `GITHUB_ORGS` に対応する Org のリポジトリデータ（`data/github-data.json` の `org_repos`）を参照
+1. `career.yml` の各会社に対して、`gh api` で自動取得した Org のリポジトリデータ（`data/github-data.json` の `org_repos`）を参照
 2. `name` を公開用の会社名として使用
 3. リポジトリの言語・トピック情報から技術スタックを自動抽出
 4. リポジトリの内容を一般化してプロジェクト概要を生成
 5. 具体的なリポジトリ名・プロダクト名・Org名は絶対に含めない
+
+## PRデータの活用方法
+
+- Org リポジトリの `my_merged_prs` からマージ済みPR総数を算出し Stats に表示（個人リポジトリのPRは収集しない）
+- PR の `additions` / `deletions` / `changed_files` からコード貢献の規模感を算出可能
+
+### PRデータのプライバシールール
+
+- 個人リポジトリのPRタイトル・body はそのまま表示可能
+- Org リポジトリのPRタイトル・body は一般化して表示するか非表示にする
+- PR番号・マージ日時は統計情報として利用可能（リポジトリ名が紐づかない形であれば公開可）
+- `additions` / `deletions` / `changed_files` は集計値として公開可能
 
 ## スキルセクションの生成ルール
 
