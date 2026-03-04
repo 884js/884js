@@ -22,7 +22,7 @@ jobs:
 
       - uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             CLAUDE.mdの指示に従って、プロフィールを更新してください。
 
@@ -43,4 +43,4 @@ jobs:
           claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Bash,Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
-          GITHUB_ORGS: ${{ secrets.GITHUB_ORGS }}
+          GITHUB_ORGS: ${{ secrets.TARGET_ORGS }}
