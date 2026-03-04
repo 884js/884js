@@ -79,6 +79,7 @@ jobs:
             - 職務経歴の詳細は含めない（ポートフォリオサイトへ誘導）
             - Org名・Privateリポジトリ名は絶対に含めない
             - 日本語で生成すること
+            - templates/examples/readme-example.md を参考にトーン・構成・粒度を揃えること
           claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
@@ -120,6 +121,12 @@ jobs:
               - 該当 Org のリポジトリの言語・トピックから技術スタックを推定
               - リポジトリの description や構成から「どんな種類のプロジェクトか」を一般化して推定
                 （例: 「Webアプリケーション開発」「API基盤構築」「管理画面開発」等）
+              - my_merged_prs の分析:
+                - title と body から担当した機能領域・技術的アプローチを推定
+                  （例: 「認証基盤の構築」「パフォーマンス改善」「テスト基盤整備」等）
+                - PRの規模（additions/deletions/changed_files）から貢献度を推定
+                - PRの時系列（merged_at）から成長や役割変化を読み取る
+                - ただし具体的なプロダクト名・機能名・ドメイン固有の用語は一般化する
               - コミットメッセージの分析: my_commits[].message から開発内容を推定
                 - feat: → 機能開発、fix: → バグ修正、refactor: → リファクタリング
                 - メッセージのキーワードから「認証機能」「決済連携」「パフォーマンス改善」等を抽出
@@ -137,6 +144,7 @@ jobs:
             ## 制約
             - CLAUDE.md のプライバシー保護ルールを厳守
             - 日本語で生成すること
+            - templates/examples/career-example.html を参考に Career セクションのトーン・構成・粒度を揃えること
           claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
@@ -169,7 +177,7 @@ jobs:
           fi
 
           # ブランチ作成 → コミット → プッシュ → PR
-          DATE=$(date +%Y-%m-%d)
+          DATE=$(date +%Y-%m-%d-%H%M%S)
           BRANCH="chore/update-profile-${DATE}"
           git checkout -b "$BRANCH"
           git config user.name "github-actions[bot]"
