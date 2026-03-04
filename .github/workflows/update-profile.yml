@@ -21,52 +21,89 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - uses: anthropics/claude-code-action@v1
-        id: claude
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: |
-            CLAUDE.mdの指示に従って、プロフィールを更新してください。
-
-            手順:
-            1. scripts/collect-github-data.sh を実行してデータを収集
-            2. data/github-data.json と career.yml を読み込んで分析
-            3. templates/readme-template.md の構成に従って README.md を生成
-            4. templates/site/ をベースに dist/index.html と dist/styles.css を生成
-            5. 変更があればブランチを作成してPRを出す
-               - ブランチ名: chore/update-profile-YYYY-MM-DD
-               - PRタイトル: chore: update profile (YYYY-MM-DD)
-
-            注意:
-            - GITHUB_ORGS のOrg名は絶対に公開しないこと
-            - Privateリポジトリの具体名は出力に含めないこと
-            - 日本語で生成すること
-            - 直接masterにコミットせず、必ずPRを作成すること
-            - データ収集後、org_repos の件数をログ出力して確認すること（jq '.org_repos | length' data/github-data.json）
-          claude_args: "--model claude-sonnet-4-6 --max-turns 30 --allowedTools Bash,Read,Write,Edit,Glob,Grep"
+      # Step 1: データ収集（Bash）- Claude不要
+      - name: Collect GitHub data
+        run: |
+          bash scripts/collect-github-data.sh
+          echo "## Data Collection" >> $GITHUB_STEP_SUMMARY
+          echo "org_repos: $(jq '.org_repos | length' data/github-data.json)" >> $GITHUB_STEP_SUMMARY
+          echo "personal_repos: $(jq '.personal_repos | length' data/github-data.json)" >> $GITHUB_STEP_SUMMARY
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           GITHUB_ORGS: ${{ secrets.TARGET_ORGS }}
 
-      - name: Comment token usage on PR
-        if: always()
+      # Step 2: README生成（Claude）
+      - uses: anthropics/claude-code-action@v1
+        id: claude-readme
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            data/github-data.json と career.yml を読み込み、
+            templates/readme-template.md の構成に従って README.md を生成してください。
+            CLAUDE.md の README 生成ルールに従うこと。
+            職務経歴は含めないこと。日本語で生成すること。
+          claude_args: "--model claude-sonnet-4-6 --max-turns 15 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USAGE: ${{ steps.claude.outputs.usage }}
+          GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
+          GITHUB_ORGS: ${{ secrets.TARGET_ORGS }}
+
+      # Step 3: サイト生成（Claude）
+      - uses: anthropics/claude-code-action@v1
+        id: claude-site
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            data/github-data.json と career.yml を読み込み、
+            templates/site/template.html のプレースホルダーを実データで置換して dist/index.html を生成してください。
+            templates/site/styles.css を dist/styles.css にコピーしてください。
+            CLAUDE.md の会社別職務経歴の生成ルール・プライバシー保護ルールに従うこと。
+            日本語で生成すること。
+          claude_args: "--model claude-sonnet-4-6 --max-turns 15 --allowedTools Read,Write,Edit,Glob,Grep"
+        env:
+          GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
+          GITHUB_ORGS: ${{ secrets.TARGET_ORGS }}
+
+      # Step 4: 変更があればPR作成（Bash）- Claude不要
+      - name: Create PR if changed
+        env:
+          GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
+          README_USAGE: ${{ steps.claude-readme.outputs.usage }}
+          SITE_USAGE: ${{ steps.claude-site.outputs.usage }}
         run: |
-          # Step Summary にも出力
+          # Token Usage を Step Summary に出力
           echo "## Token Usage" >> $GITHUB_STEP_SUMMARY
+          echo "### README Generation" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
-          echo "$USAGE" >> $GITHUB_STEP_SUMMARY
+          echo "$README_USAGE" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### Site Generation" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$SITE_USAGE" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-          # PR が作成されていれば description にトークン使用量を追記
-          BRANCH=$(git branch --show-current 2>/dev/null || echo "")
-          if [ -n "$BRANCH" ] && [ "$BRANCH" != "master" ]; then
-            PR_NUMBER=$(gh pr view "$BRANCH" --json number -q '.number' 2>/dev/null || echo "")
-            if [ -n "$PR_NUMBER" ]; then
-              CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body')
-              APPEND=$(printf '\n\n---\n## Token Usage\n```json\n%s\n```' "$USAGE")
-              gh pr edit "$PR_NUMBER" --body "${CURRENT_BODY}${APPEND}"
-            fi
+          # 変更チェック
+          git add README.md dist/
+          if git diff --cached --quiet; then
+            echo "No changes detected. Skipping PR creation."
+            echo "## Result" >> $GITHUB_STEP_SUMMARY
+            echo "No changes detected." >> $GITHUB_STEP_SUMMARY
+            exit 0
           fi
+
+          # ブランチ作成 → コミット → プッシュ → PR
+          DATE=$(date +%Y-%m-%d)
+          BRANCH="chore/update-profile-${DATE}"
+          git checkout -b "$BRANCH"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: update profile (${DATE})"
+          git push -u origin "$BRANCH"
+
+          # PR作成
+          USAGE_BODY=$(printf '---\n## Token Usage\n### README Generation\n```json\n%s\n```\n### Site Generation\n```json\n%s\n```' "$README_USAGE" "$SITE_USAGE")
+          gh pr create \
+            --title "chore: update profile (${DATE})" \
+            --body "$(printf 'プロフィールの自動更新\n\n%s' "$USAGE_BODY")"
+
+          echo "## Result" >> $GITHUB_STEP_SUMMARY
+          echo "PR created on branch \`${BRANCH}\`" >> $GITHUB_STEP_SUMMARY
