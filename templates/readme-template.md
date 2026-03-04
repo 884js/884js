@@ -14,24 +14,25 @@ Claude Code はこの構成に従って、収集データからREADME.mdを動�
 - ソーシャルリンクバッジ（GitHub, ポートフォリオサイト等）
 
 ### 2. About Me
-- 簡潔な自己紹介（2-3文）
-- 現在の関心事・取り組み
+- キャリアの成長ストーリーを簡潔に（2-3文）
+  - career.yml から経歴の変遷を読み取り、成長を示す
+  - 例: インフラ → フロントエンド → リードエンジニア
+- 現在の専門領域と得意なこと
 
 ### 3. Skills & Technologies
 - カテゴリごとに shields.io バッジで表示
-- カテゴリ例:
-  - **Languages**: 言語統計から上位のものを表示
-  - **Frameworks & Libraries**: リポジトリのトピックから抽出
+- カテゴリ:
+  - **Languages**: language_stats + org_language_stats からバイト数上位を抽出
+  - **Frameworks & Libraries**: リポジトリの repositoryTopics から抽出
   - **Tools & Infrastructure**: CI/CD, クラウド, DB等
 
-### 4. Language Stats
-- 言語使用比率をバッジまたはテキストで表示
-- 上位5-8言語程度
+### 4. Stats
+- GitHub での活動実績を数字で表示
+- 総コミット数（personal_repos + org_repos の my_commits を合算）
+- リポジトリ数（personal + org 合計）
+- GitHub 活動年数（profile.created_at から算出）
+- 個別リポジトリの一覧は載せない
 
-### 5. Recent Activity
-- 最近のPublicアクティビティを数件表示
-- コミット、PR、Issue等
-
-### 6. フッター
+### 5. フッター
 - ポートフォリオサイトへのリンク
 - 自動生成であることの注記と最終更新日

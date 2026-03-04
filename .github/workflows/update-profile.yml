@@ -21,7 +21,15 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      # Step 1: データ収集（Bash）- Claude不要
+      # キャッシュから前回データを復元
+      - uses: actions/cache/restore@v4
+        id: data-cache
+        with:
+          key: github-data-${{ github.run_id }}
+          restore-keys: github-data-
+          path: data/
+
+      # Step 1: データ収集（Bash）- Claude不要、差分更新対応
       - name: Collect GitHub data
         run: |
           bash scripts/collect-github-data.sh
@@ -38,10 +46,40 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            data/github-data.json と career.yml を読み込み、
-            templates/readme-template.md の構成に従って README.md を生成してください。
-            CLAUDE.md の README 生成ルールに従うこと。
-            職務経歴は含めないこと。日本語で生成すること。
+            あなたは就職活動用の GitHub プロフィール README を生成するエージェントです。
+
+            ## 目的
+            採用担当・技術面接官が GitHub プロフィールを見たとき、
+            「この人と話してみたい」と思わせる README を生成すること。
+
+            ## 入力データ
+            - data/github-data.json: GitHub API から収集したリポジトリ・コミット・言語データ
+            - career.yml: 職務経歴データ
+
+            ## 生成ルール
+            templates/readme-template.md の構成に従い、以下の観点でデータを分析・整形すること。
+
+            ### 1. About Me
+            - career.yml の経歴から「インフラ→フロントエンド→リード」のキャリア成長を簡潔に示す
+            - 現在の専門領域と得意なことを 2-3 文で
+
+            ### 2. Skills（技術スタック）
+            - language_stats + org_language_stats を合算し、バイト数上位の言語をバッジ表示
+            - personal_repos と org_repos の repositoryTopics からフレームワーク・ツールを抽出
+            - カテゴリ: Languages / Frameworks / Tools & Infrastructure
+            - shields.io バッジを使用
+
+            ### 3. Stats（実績を数字で見せる）
+            - 総コミット数（personal_repos + org_repos の my_commits を合算）
+            - リポジトリ数（personal + org）
+            - GitHub活動年数（profile.created_at から算出）
+            - 個別リポジトリの一覧は載せない
+
+            ### 制約
+            - CLAUDE.md の README 生成ルールに従うこと
+            - 職務経歴の詳細は含めない（ポートフォリオサイトへ誘導）
+            - Org名・Privateリポジトリ名は絶対に含めない
+            - 日本語で生成すること
           claude_args: "--model claude-sonnet-4-6 --max-turns 15 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
@@ -53,11 +91,54 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            data/github-data.json と career.yml を読み込み、
-            templates/site/template.html のプレースホルダーを実データで置換して dist/index.html を生成してください。
-            templates/site/styles.css を dist/styles.css にコピーしてください。
-            CLAUDE.md の会社別職務経歴の生成ルール・プライバシー保護ルールに従うこと。
-            日本語で生成すること。
+            あなたは就職活動用のポートフォリオサイトを生成するエージェントです。
+
+            ## 目的
+            採用担当が「この人の技術力と経験が具体的にわかる」ポートフォリオを生成すること。
+            README では伝えきれない職務経歴の詳細と、データに裏付けされた技術力を示す。
+
+            ## 入力データ
+            - data/github-data.json: GitHub API から収集したデータ
+            - career.yml: 職務経歴データ
+            - templates/site/template.html: HTML テンプレート
+            - templates/site/styles.css: スタイルシート
+
+            ## 生成手順
+            1. templates/site/styles.css を dist/styles.css にコピー
+            2. templates/site/template.html のプレースホルダーを以下のルールで置換し dist/index.html を生成
+
+            ## 各セクションの生成ルール
+
+            ### Skills セクション ({{SKILLS_SECTION}})
+            - language_stats + org_language_stats を合算
+            - バイト数の割合を計算し、上位言語をプログレスバー付きで表示
+            - repositoryTopics からフレームワーク・ツールをタグ表示
+
+            ### Career セクション ({{CAREER_SECTION}})
+            career.yml の各会社について:
+            - 会社名・期間・役職を表示
+            - description がある場合: そのまま使用し、データで補強
+            - description が空の場合: org_repos のデータから職務内容を自動推定する
+              - 該当 Org のリポジトリの言語・トピックから技術スタックを推定
+              - リポジトリの description や構成から「どんな種類のプロジェクトか」を一般化して推定
+                （例: 「Webアプリケーション開発」「API基盤構築」「管理画面開発」等）
+              - コミットメッセージの分析: my_commits[].message から開発内容を推定
+                - feat: → 機能開発、fix: → バグ修正、refactor: → リファクタリング
+                - メッセージのキーワードから「認証機能」「決済連携」「パフォーマンス改善」等を抽出
+                - ただし具体的なプロダクト名・機能名が特定できる表現は一般化する
+              - コミット頻度・量から担当の深さを推定
+            - org_repos から該当 Org の技術スタック（言語・トピック）を自動抽出して「使用技術」として追加
+            - 該当 Org でのコミット数・リポジトリ数を規模感として表示
+            - 具体的なリポジトリ名・Org名・プロダクト名は絶対に含めない
+
+            ### Stats セクション ({{STATS_SECTION}})
+            - 総コミット数、リポジトリ数、言語数
+            - 言語別の割合（円グラフ的な表現、CSS のみで）
+            - 活動年数
+
+            ## 制約
+            - CLAUDE.md のプライバシー保護ルールを厳守
+            - 日本語で生成すること
           claude_args: "--model claude-sonnet-4-6 --max-turns 15 --allowedTools Read,Write,Edit,Glob,Grep"
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
@@ -107,3 +188,10 @@ jobs:
 
           echo "## Result" >> $GITHUB_STEP_SUMMARY
           echo "PR created on branch \`${BRANCH}\`" >> $GITHUB_STEP_SUMMARY
+
+      # キャッシュ保存（データ収集結果を次回に引き継ぐ）
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          key: github-data-${{ github.run_id }}
+          path: data/
