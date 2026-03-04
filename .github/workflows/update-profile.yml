@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
   id-token: write
 
 jobs:
@@ -150,8 +151,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
 
-      # Step 4: 変更があれば master に直接コミット（Bash）- Claude不要
-      - name: Commit and push if changed
+      # Step 4: 変更があればPR作成（Bash）- Claude不要
+      - name: Create PR if changed
         env:
           GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           README_USAGE: ${{ steps.claude-readme.outputs.usage }}
@@ -168,7 +169,7 @@ jobs:
           echo "$SITE_USAGE" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-          # 変更チェック → コミット → プッシュ
+          # 変更チェック
           git add README.md dist/
           if git diff --cached --quiet; then
             echo "No changes detected."
@@ -177,13 +178,19 @@ jobs:
             exit 0
           fi
 
+          # ブランチ作成 → コミット → プッシュ → PR作成
+          BRANCH="chore/update-profile-$(date +%Y-%m-%d-%H%M%S)"
+          git checkout -b "$BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: update profile ($(date +%Y-%m-%d))"
-          git push
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --title "chore: update profile ($(date +%Y-%m-%d))" \
+            --body "プロフィールの自動更新"
 
           echo "## Result" >> $GITHUB_STEP_SUMMARY
-          echo "Committed and pushed to master." >> $GITHUB_STEP_SUMMARY
+          echo "PR created from branch $BRANCH" >> $GITHUB_STEP_SUMMARY
 
       # キャッシュ保存（データ収集結果を次回に引き継ぐ）
       - uses: actions/cache/save@v4
