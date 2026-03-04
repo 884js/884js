@@ -12,6 +12,9 @@ bash scripts/collect-github-data.sh
 - `data/github-data.json` にJSON形式で出力される
 - `gh` CLI を使用（`GH_TOKEN` 環境変数でPrivateリポジトリにもアクセス可能）
 - Org リポジトリは `gh api user/orgs` で所属 Org を自動取得して収集
+- PR取得は GraphQL で body/additions/deletions/changed_files を一括取得（並列実行）
+- **24時間以内の再実行はスキップ**（`SKIP_IF_WITHIN_HOURS` で閾値変更可能）
+- **離脱済み Org のデータはキャッシュから自動復元**（Org を辞めてもデータは消えない）
 
 ### 2. README.md 生成
 
@@ -38,7 +41,7 @@ bash scripts/collect-github-data.sh
 
 生成したファイルに変更があれば、ブランチを作成してPRを出す:
 ```bash
-BRANCH="chore/update-profile-$(date +%Y-%m-%d)"
+BRANCH="chore/update-profile-$(date +%Y-%m-%d-%H%M%S)"
 git checkout -b "$BRANCH"
 git add README.md dist/
 git diff --cached --quiet || git commit -m "chore: update profile ($(date +%Y-%m-%d))"
@@ -77,6 +80,7 @@ gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "プロ�
 
 - Org リポジトリの `my_merged_prs` からマージ済みPR総数を算出し Stats に表示（個人リポジトリのPRは収集しない）
 - PR の `additions` / `deletions` / `changed_files` からコード貢献の規模感を算出可能
+- **Career セクション生成時の活用**: PR の title/body から担当した機能領域・技術的アプローチを推定し、職務内容の記述を充実させる（`has_org: true` かつ `description` が空の会社が対象）
 
 ### PRデータのプライバシールール
 
@@ -96,6 +100,10 @@ gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "プロ�
 
 ### README (`templates/readme-template.md`)
 テンプレートは構成の指針であり、各セクションの内容はデータに基づいて動的に生成する。
+
+### 出力例 (`templates/examples/`)
+- `readme-example.md` - README.md の完成イメージ（トーン・構成・粒度の参考）
+- `career-example.html` - Career セクションの HTML 出力例（CSS クラス・構成の参考）
 
 ### HTMLサイト (`templates/site/template.html`)
 以下のプレースホルダーを実データで置換する:
