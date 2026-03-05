@@ -4,6 +4,8 @@
   ※ 会社名・期間・役職・プロジェクト情報は career.yml から取得。
   ※ has_org: true かつ projects が空の場合、GitHub データから自動推定。
   ※ Org名・リポジトリ名・プロダクト名は絶対に含めない。
+
+  【例1: career.yml に projects が定義されている会社】
 -->
 
 <div class="career-item">
@@ -52,6 +54,76 @@
     <ul class="project-achievements">
       <li>JSONカラムからRDBベースのスキーマに再設計。障害ゼロでリリース</li>
       <li>Vite導入によりビルド時間を1分→7秒に改善</li>
+    </ul>
+  </div>
+</div>
+
+<!--
+  【例2: has_org: true かつ projects が空の会社 — GitHub データから自動生成】
+  以下は GitHub の PR データを分析して自動生成した例です。
+  - リリースPRは除外し、機能開発PRのみからプロジェクトを推定
+  - PRタイトルのプレフィックスやキーワードでカテゴリ分類
+  - プロダクト固有の用語は一般化して表記
+  - PR件数やコード行数で規模感を示す
+-->
+<div class="career-item">
+  <h3>○○株式会社</h3>
+  <div class="career-period">2025-02 ~ 現在</div>
+  <div class="career-role">フロントエンドエンジニア（業務委託）</div>
+  <div class="career-business">【事業内容：○○プラットフォームの開発】</div>
+
+  <!-- PRカテゴリ「AI/LLM」から自動推定したプロジェクト -->
+  <div class="career-project">
+    <h4>LLMを活用した情報提供AI機能の開発</h4>
+    <div class="project-meta">
+      <span class="project-period">2025-05 ~ 現在</span>
+      <span class="project-role">バックエンドエンジニア</span>
+    </div>
+    <div class="project-tech">
+      <span class="skill-tag">TypeScript</span>
+      <span class="skill-tag">LLM API</span>
+      <span class="skill-tag">Node.js</span>
+    </div>
+    <p class="project-summary">LLMを活用した判定機能・自動文書生成機能の設計・実装を担当。応答生成フローの改修やAIパイプラインの抽出など、アーキテクチャレベルの改善も推進。</p>
+    <ul class="project-achievements">
+      <li>AIエージェントの判定ロジックを新規設計・実装（関連PR 5件、約6,500行の追加）</li>
+      <li>外部サービス連携による自動文書生成フローを構築</li>
+      <li>応答生成フローのリファクタリングにより保守性を向上</li>
+    </ul>
+  </div>
+
+  <!-- PRカテゴリ「API・DB設計」から自動推定したプロジェクト -->
+  <div class="career-project">
+    <h4>API設計・DB設計による機能基盤の構築</h4>
+    <div class="project-meta">
+      <span class="project-period">2025-08 ~ 2025-12</span>
+      <span class="project-role">バックエンドエンジニア</span>
+    </div>
+    <div class="project-tech">
+      <span class="skill-tag">TypeScript</span>
+      <span class="skill-tag">PostgreSQL</span>
+    </div>
+    <p class="project-summary">新機能のためのAPIルート追加・DB設計を担当。Markdown対応のメモ機能など、ユーザー向け機能の基盤を設計・実装。</p>
+    <ul class="project-achievements">
+      <li>Markdown対応のメモ機能をDB設計からAPI実装まで一貫して担当（約1,600行の追加）</li>
+      <li>APIルーティングの設計・追加</li>
+    </ul>
+  </div>
+
+  <!-- PRカテゴリ「CI/CD・リリース自動化」から自動推定したプロジェクト -->
+  <div class="career-project">
+    <h4>リリースプロセスの自動化</h4>
+    <div class="project-meta">
+      <span class="project-period">2025-05 ~ 2025-12</span>
+      <span class="project-role">開発エンジニア</span>
+    </div>
+    <div class="project-tech">
+      <span class="skill-tag">GitHub Actions</span>
+    </div>
+    <p class="project-summary">リリースPRの自動生成を導入し、デプロイフローを効率化。期間中に30回以上のリリースを安定的に実施。</p>
+    <ul class="project-achievements">
+      <li>リリースPR自動生成の仕組みを構築</li>
+      <li>安定したリリースサイクルの確立に貢献</li>
     </ul>
   </div>
 </div>
