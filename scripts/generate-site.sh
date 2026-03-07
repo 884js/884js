@@ -244,19 +244,23 @@ generate_stats() {
   cat <<STATS_EOF
         <div class="stat-card">
           <div class="stat-value">${total_prs}</div>
-          <div class="stat-label">マージ済みPR数</div>
+          <div class="stat-label">Merged PRs</div>
+          <div class="stat-note">in Organization</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">${formatted_additions}+</div>
-          <div class="stat-label">コード貢献量（行）</div>
+          <div class="stat-label">Lines Contributed</div>
+          <div class="stat-note">in Organization</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">${public_repos}</div>
-          <div class="stat-label">公開リポジトリ数</div>
+          <div class="stat-label">Public Repos</div>
+          <div class="stat-note">Personal GitHub</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">${experience_years}年+</div>
-          <div class="stat-label">エンジニア経験</div>
+          <div class="stat-value">${experience_years}+</div>
+          <div class="stat-label">Years of Experience</div>
+          <div class="stat-note">as Software Engineer</div>
         </div>
 STATS_EOF
 }
@@ -305,6 +309,7 @@ echo "$SKILLS_SECTION" > "$tmpdir/skills.html"
 echo "$CAREER_SECTION" > "$tmpdir/career.html"
 echo "$STATS_SECTION" > "$tmpdir/stats.html"
 
+# セクション順序: Summary → Skills → Career → Stats
 replace_placeholder "{{SUMMARY_SECTION}}" "$tmpdir/summary.html" "$OUTPUT_HTML"
 replace_placeholder "{{SKILLS_SECTION}}" "$tmpdir/skills.html" "$OUTPUT_HTML"
 replace_placeholder "{{CAREER_SECTION}}" "$tmpdir/career.html" "$OUTPUT_HTML"
