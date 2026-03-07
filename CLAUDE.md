@@ -37,6 +37,16 @@ git push -u origin "$BRANCH"
 gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "職務経歴書サイトの自動更新"
 ```
 
+### 4. デプロイ（Cloudflare Pages）
+
+`master` ブランチに `dist/**` の変更が push されると、GitHub Actions（`.github/workflows/deploy-pages.yml`）が自動で Cloudflare Pages にデプロイする。
+
+- **デプロイツール**: `cloudflare/wrangler-action@v3`（`wrangler pages deploy`）
+- **プロジェクト名**: `884js`
+- **必要な GitHub Secrets**:
+  - `CLOUDFLARE_API_TOKEN`: Cloudflare ダッシュボード → My Profile → API Tokens で作成（Cloudflare Pages Edit 権限）
+  - `CLOUDFLARE_ACCOUNT_ID`: Cloudflare ダッシュボードの URL またはサイドバーから取得
+
 ## career.yml の構成
 
 ### profile
