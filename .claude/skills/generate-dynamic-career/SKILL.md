@@ -1,12 +1,15 @@
 ---
 name: generate-dynamic-career
-description: "dist/index.html の <!-- DYNAMIC_CAREER:会社名 --> プレースホルダーを GitHub データで分析・生成した職務経歴 HTML で置換する。update-profile ワークフローから呼び出される。"
+description: "GitHub データを分析し、会社ごとの職務経歴 JSON を data/career-json/{key}.json に出力する。update-deploy-profile ワークフローから呼び出される。"
 ---
 
-# 動的職務経歴セクション生成
+# 動的職務経歴セクション生成（JSON 出力）
 
-dist/index.html に含まれる `<!-- DYNAMIC_CAREER:会社名 -->` プレースホルダーを、
-GitHub データを分析して生成した職務経歴 HTML で置換する。
+GitHub データを分析し、`has_org: true` かつ `projects` が空の会社について、
+職務経歴の構造化データを JSON ファイルとして出力する。
+
+**重要: HTML は生成しない。JSON のみ出力する。**
+HTML への変換は `scripts/render-career.sh` が決定的に行う。
 
 ## 重要: データ分析アプローチ
 
@@ -18,19 +21,57 @@ career.yml の情報をそのまま繰り返すのではなく、GitHub デー�
 
 ## 入力データ
 
-- `dist/index.html`: generate-site.sh で生成済みの HTML（DYNAMIC_CAREER プレースホルダーあり）
 - `data/github-data.json`: GitHub API から収集したデータ
 - `career.yml`: 職務経歴データ（会社の role / business をコンテキストとして活用）
 - `templates/examples/career-example.html`: 出力の構成・粒度の参考
 
-## 生成手順
+## 出力
 
-1. dist/index.html を読み込み、`<!-- DYNAMIC_CAREER:会社名 -->` を探す
-2. 各プレースホルダーについて以下の手順で HTML を生成:
+会社ごとに `data/career-json/{key}.json` を Write で出力する。
+
+### 会社キーマッピング
+
+| career.yml の会社名 | キー | Org 名 |
+|---------------------|------|--------|
+| 株式会社Medii | `medii` | `medii-jp` |
+| 株式会社and.d | `andd` | `anddtokyo` |
+
+### JSON フォーマット
+
+```json
+{
+  "company_key": "medii",
+  "projects": [
+    {
+      "name": "プロジェクト名（一般化済み）",
+      "period": "2025-03 ~ 2025-06",
+      "tech": ["TypeScript", "React", "Next.js"],
+      "summary": "概要テキスト",
+      "achievements": [
+        "成果1",
+        "成果2"
+      ]
+    }
+  ]
+}
+```
+
+## 差分更新モード
+
+`data/career-json/{key}.json` が既に存在する場合、**差分更新モード**で動作する:
+
+1. 既存の JSON ファイルを Read する
+2. 既存のプロジェクト構造・文体をベースとして維持する
+3. 新しい PR データの差分のみを反映する（プロジェクトの追加、成果の更新）
+4. 既存のプロジェクト名・summary の文体を変更しない
+
+既存 JSON がない場合はゼロから生成する。
+
+## 生成手順
 
 ### Step 1: Org を特定する
 
-- career.yml の会社名・事業内容と、data/github-data.json の org_repos の org フィールドを照合し、対象 Org を特定する
+- career.yml の会社名と上記マッピングを照合し、対象 Org を特定する
 - 対象 Org のリポジトリと my_merged_prs を分析対象にする
 
 ### Step 2: リリースPRを除外する
@@ -64,16 +105,14 @@ career.yml の情報をそのまま繰り返すのではなく、GitHub デー�
   - 例: "ゲストQ" → "ユーザー向け質問・回答機能"
 - **Org名・リポジトリ名・プロダクト固有名は絶対に含めない**
 
-3. 生成した HTML で `<!-- DYNAMIC_CAREER:会社名 -->` を置換して dist/index.html に書き戻す
-4. templates/examples/career-example.html を参考に構成・粒度を揃えること
+### Step 6: JSON を出力する
 
-## 出力フォーマット
-
-各プレースホルダーを、career-project div のリストで置換する。
-既存の career-item div の中身（会社名・期間・役職・事業内容の後）に挿入される形になる。
+- 各会社のキーに対応するファイル（`data/career-json/medii.json`, `data/career-json/andd.json`）を Write で出力
+- `templates/examples/career-example.html` を参考に構成・粒度を揃えること
 
 ## 制約
 
 - CLAUDE.md のプライバシー保護ルールを厳守
 - 日本語で生成すること
-- dist/index.html 以外のファイルは変更しない
+- `data/career-json/{key}.json` 以外のファイルは変更しない
+- dist/index.html は変更しない（HTML 変換は render-career.sh が行う）

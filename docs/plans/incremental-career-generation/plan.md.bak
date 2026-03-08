@@ -1,0 +1,222 @@
+---
+title: 動的キャリア生成のインクリメンタル更新
+feature-name: incremental-career-generation
+status: done
+created: 2026-03-08
+updated: 2026-03-08
+---
+
+# 動的キャリア生成のインクリメンタル更新
+
+## 概要
+
+動的キャリアセクション生成（`/generate-dynamic-career`）にハッシュスキップと前回結果アンカーを導入する。PRデータに変化がない場合は Claude Code Action をスキップして前回生成 HTML を再利用し、変化がある場合は前回 HTML をアンカーとして差分更新モードで Claude を実行する。
+
+### 背景・課題
+
+- 現在は毎週 Claude Code Action を実行しているが、PR データに変化がない週でも毎回ゼロから生成している（コスト非効率）
+- LLM の非決定性により、同じ入力データでも生成結果にブレが生じる
+- 前回の生成結果はどこにも保存されておらず、ワークフロー終了時に揮発する
+
+### 目的
+
+- PR データに変化がない週の Claude 呼び出しを完全にスキップし、API コストを削減する
+- PR データに変化がある場合も前回 HTML をアンカーとして渡すことで、出力のブレを抑制する
+
+### 設計判断
+
+| 観点 | 判断 | 理由 |
+|------|------|------|
+| R2 保存パス（HTML） | `884js-data/career-html/{key}.html` | 会社ごとに HTML フラグメントを個別管理 |
+| R2 保存パス（ハッシュ） | `884js-data/career-hash/{key}.sha256` | ハッシュを個別ファイルで管理し比較を簡素化 |
+| 会社キー | `medii`, `andd` | 日本語を避けて英語化。ワークフロー内でマッピング |
+| ハッシュ計算対象 | `my_merged_prs` 配列 | `jq` で対象 Org の PR データを抽出し `sha256sum` で計算 |
+| スキップ時の HTML 挿入 | `sed` / `awk` | Bash のみで実現。`DYNAMIC_CAREER` プレースホルダーをファイル内容で置換 |
+| アンカー方式 | `data/career-html/{key}.html` に前回 HTML を配置 | SKILL.md で「このファイルがあれば差分更新モードで動作」と指示 |
+| HTMLフラグメント抽出 | `sed` / `awk` | Claude 生成後の `dist/index.html` から各会社の career-project div ブロックを抽出 |
+
+## スコープ
+
+### やること
+
+- `update-deploy-profile.yml` にハッシュ計算・比較ステップを追加
+- ハッシュ一致時のスキップ処理（R2 から前回 HTML 取得 → `sed` でプレースホルダー置換）
+- ハッシュ不一致時の条件付き Claude 実行 + 前回 HTML のアンカー配置
+- Claude 生成後の HTML フラグメント抽出 + R2 保存
+- SKILL.md に差分更新モードの指示を追加
+- CLAUDE.md に差分更新フローの説明を追記
+
+### やらないこと
+
+- `generate-site.sh` の変更（不要）
+- `career.yml` の変更（不要）
+- `collect-github-data.sh` の変更（不要）
+
+## 受入条件
+
+| # | 受入条件 | 検証方法 |
+|---|---------|---------|
+| AC-1 | 各会社の PR データの SHA-256 ハッシュがワークフロー内で計算される | ワークフロー YAML の差分確認 |
+| AC-2 | ハッシュが R2 に保存され、次回実行時に比較される | 手動実行後に R2 バケット内容を確認 |
+| AC-3 | ハッシュ一致時は Claude Code Action がスキップされる | PRデータ変化なしで2回目実行し、Claude ステップが skip されることを確認 |
+| AC-4 | スキップ時に前回 HTML フラグメントが R2 から取得され `dist/index.html` のプレースホルダーに挿入される | 2回目実行後の `dist/index.html` に HTML が含まれることを確認 |
+| AC-5 | ハッシュ不一致時（PRデータ変化あり）は Claude Code Action が実行される | データ変化ありの状態で実行し、Claude ステップが実行されることを確認 |
+| AC-6 | Claude 実行時、前回 HTML が `data/career-html/` に配置され、SKILL.md の指示でアンカーとして参照される | ワークフロー YAML + SKILL.md の差分確認 |
+| AC-7 | Claude 生成後、HTML フラグメントが `dist/index.html` から抽出され R2 に保存される | 実行後に R2 バケットで `career-html/medii.html`, `career-html/andd.html` を確認 |
+| AC-8 | SKILL.md に前回結果がある場合の差分更新モード指示が追加されている | SKILL.md の差分確認 |
+
+## データフロー
+
+```mermaid
+sequenceDiagram
+    participant GHA as GitHub Actions
+    participant R2 as Cloudflare R2<br>(884js-data)
+    participant Script as Bash (jq/sed/awk)
+    participant Claude as Claude Code Action
+    participant CFP as Cloudflare Pages
+
+    GHA->>GHA: actions/checkout
+    GHA->>R2: wrangler r2 object get<br>884js-data/github-data.json
+    R2-->>GHA: data/github-data.json
+
+    GHA->>Script: bash scripts/collect-github-data.sh
+    Script-->>GHA: data/github-data.json (更新済み)
+    GHA->>Script: bash scripts/generate-site.sh
+    Script-->>GHA: dist/index.html (プレースホルダー付き)
+
+    Note over GHA,Script: 会社ごとにハッシュ計算・比較
+    GHA->>R2: wrangler r2 object get<br>884js-data/career-hash/medii.sha256
+    R2-->>GHA: 前回ハッシュ
+    GHA->>Script: jq + sha256sum で現在のハッシュ計算
+    Script-->>GHA: ハッシュ比較結果
+
+    alt ハッシュ一致（PRデータ変化なし）
+        GHA->>R2: wrangler r2 object get<br>884js-data/career-html/medii.html
+        R2-->>GHA: 前回 HTML フラグメント
+        GHA->>Script: sed でプレースホルダー置換
+        Script-->>GHA: dist/index.html 更新
+        Note over GHA,Claude: Claude Code Action スキップ
+    else ハッシュ不一致（PRデータ変化あり）
+        GHA->>R2: wrangler r2 object get<br>884js-data/career-html/medii.html
+        R2-->>GHA: 前回 HTML（アンカー用）
+        GHA->>GHA: data/career-html/medii.html に配置
+        GHA->>Claude: /generate-dynamic-career<br>(差分更新モード)
+        Claude-->>GHA: dist/index.html 更新済み
+        GHA->>Script: dist/index.html から<br>HTML フラグメント抽出
+        Script-->>GHA: career-html/medii.html
+        GHA->>R2: wrangler r2 object put<br>884js-data/career-html/medii.html
+        GHA->>R2: wrangler r2 object put<br>884js-data/career-hash/medii.sha256
+    end
+
+    GHA->>CFP: wrangler pages deploy dist/
+    GHA->>R2: wrangler r2 object put<br>884js-data/github-data.json
+```
+
+## 影響範囲
+
+### 変更対象ファイル
+
+| ファイル | 変更種別 | 変更内容 |
+|---------|---------|---------|
+| `.github/workflows/update-deploy-profile.yml` | 修正 | ハッシュ計算・比較、条件分岐、HTML 挿入・抽出、R2 保存ステップ追加 |
+| `.claude/skills/generate-dynamic-career/SKILL.md` | 修正 | 差分更新モードの指示追加 |
+| `CLAUDE.md` | 修正 | 差分更新フローの説明追記 |
+
+### 変更なし
+
+- `scripts/collect-github-data.sh`（ローカルパスは同じため不要）
+- `scripts/generate-site.sh`（プレースホルダー方式は変わらないため不要）
+- `career.yml`（変更不要）
+
+### ワークフロー変更詳細
+
+#### 追加するステップ
+
+**ハッシュ計算・比較ステップ**
+- R2 から前回ハッシュを取得（`884js-data/career-hash/medii.sha256`, `884js-data/career-hash/andd.sha256`）
+- `data/github-data.json` から対象 Org の `my_merged_prs` 配列を `jq` で抽出し `sha256sum` で現在のハッシュを計算
+- 前回ハッシュと比較し、結果を `GITHUB_OUTPUT` に設定（`medii_changed=true/false`, `andd_changed=true/false`）
+- `continue-on-error: true`（初回は前回ハッシュなし）
+
+**スキップ時の HTML 挿入ステップ**
+- ハッシュ一致（`*_changed=false`）の会社について実行
+- R2 から前回 HTML フラグメントを取得（`884js-data/career-html/medii.html`, `884js-data/career-html/andd.html`）
+- `sed` / `awk` で `dist/index.html` の `<!-- DYNAMIC_CAREER:会社名 -->` プレースホルダーをファイル内容で置換
+
+**Claude Code Action の条件付き実行**
+- `if` 条件: いずれかの会社でハッシュ不一致（`medii_changed=true` or `andd_changed=true`）
+- 実行前に R2 から前回 HTML を `data/career-html/` に配置（アンカー用）
+
+**HTML フラグメント抽出 + R2 保存ステップ**
+- Claude 生成後に実行
+- `dist/index.html` から各会社の career-project div ブロックを `sed` / `awk` で抽出
+- 抽出した HTML と計算済みハッシュを R2 に保存
+- 保存先: `884js-data/career-html/medii.html`, `884js-data/career-html/andd.html`, `884js-data/career-hash/medii.sha256`, `884js-data/career-hash/andd.sha256`
+
+### R2 保存パス一覧
+
+| パス | 内容 |
+|------|------|
+| `884js-data/career-html/medii.html` | 株式会社Medii の生成済み HTML フラグメント |
+| `884js-data/career-html/andd.html` | 株式会社and.d の生成済み HTML フラグメント |
+| `884js-data/career-hash/medii.sha256` | 株式会社Medii の PR データハッシュ |
+| `884js-data/career-hash/andd.sha256` | 株式会社and.d の PR データハッシュ |
+| `884js-data/github-data.json` | GitHub データ（既存） |
+
+### SKILL.md 変更詳細
+
+- 「差分更新モード」セクションを追加
+- `data/career-html/{key}.html` が存在する場合のフローを記述:
+  - 前回 HTML の構造・内容をベースとして維持する
+  - 新しい PR データの差分のみを反映する（プロジェクトの追加、成果の更新）
+  - 既存のプロジェクト構造・文体を変更しない
+- 前回 HTML がない場合は従来通りゼロから生成する
+
+### CLAUDE.md 変更詳細
+
+- 「ワークフロー」セクション内にインクリメンタル更新の説明を追記
+- ハッシュスキップと差分更新モードの概要を記述
+
+## テスト方針
+
+| # | テスト項目 | 対応AC | 方法 |
+|---|----------|--------|------|
+| 1 | 初回実行（R2 に前回データなし）で Claude が実行され、HTML/ハッシュが R2 に保存される | AC-1, AC-2, AC-5, AC-7 | `workflow_dispatch` で手動実行。R2 バケットに `career-html/medii.html`, `career-hash/medii.sha256` 等が保存されていることを確認 |
+| 2 | 2回目実行（PR データ変化なし）で Claude がスキップされ、前回 HTML が使われる | AC-3, AC-4 | 続けて `workflow_dispatch` を実行。Claude ステップが skip になること、`dist/index.html` に前回の HTML が含まれることを確認 |
+| 3 | PR データに変化がある場合、Claude が差分更新モードで実行される | AC-5, AC-6 | PR がマージされた後に実行し、Claude ステップが実行されること、`data/career-html/` に前回 HTML が配置されていることをログで確認 |
+| 4 | SKILL.md に差分更新モードの指示が含まれている | AC-8 | ファイル差分の目視確認 |
+| 5 | ハッシュ計算が会社ごとに正しく行われる | AC-1 | ステップログで medii/andd それぞれのハッシュ値が出力されていることを確認 |
+
+## 実装タスク
+
+| # | タスク | 対象ファイル | 見積 |
+|---|--------|------------|------|
+| T1 | ワークフローにハッシュ計算・比較ステップを追加（R2 から前回ハッシュ取得、jq + sha256sum でハッシュ計算、比較結果を output に設定） | `.github/workflows/update-deploy-profile.yml` | M |
+| T2 | ワークフローにスキップ時の HTML 挿入ステップ追加（ハッシュ一致時、R2 から前回 HTML 取得 → sed でプレースホルダー置換） | `.github/workflows/update-deploy-profile.yml` | S |
+| T3 | Claude Code Action に if 条件追加（ハッシュ不一致時のみ実行）+ 前回 HTML 取得を data/career-html/ に配置 | `.github/workflows/update-deploy-profile.yml` | S |
+| T4 | SKILL.md に差分更新モードの指示追加（data/career-html/{key}.html が存在する場合のフロー） | `.claude/skills/generate-dynamic-career/SKILL.md` | M |
+| T5 | ワークフローに Claude 生成後の HTML フラグメント抽出 + R2 保存ステップ追加（dist/index.html から各会社の HTML を抽出、ハッシュと共に R2 に put） | `.github/workflows/update-deploy-profile.yml` | M |
+| T6 | CLAUDE.md の更新（差分更新フローの説明追記） | `CLAUDE.md` | S |
+
+### タスク依存関係
+
+```mermaid
+graph LR
+    T1["T1: ハッシュ計算・比較"]
+    T2["T2: スキップ時 HTML 挿入"]
+    T3["T3: Claude 条件付き実行"]
+    T4["T4: SKILL.md 差分更新モード"]
+    T5["T5: HTML 抽出 + R2 保存"]
+    T6["T6: CLAUDE.md 更新"]
+
+    T1 --> T2
+    T1 --> T3
+    T3 --> T4
+    T3 --> T5
+    T5 --> T6
+```
+
+## 参考資料
+
+- [docs/plans/incremental-career-generation/research.md](research.md) - 差分更新方式の調査結果
+- [docs/plans/cloudflare-data-storage/plan.md](../cloudflare-data-storage/plan.md) - R2 基盤の設計

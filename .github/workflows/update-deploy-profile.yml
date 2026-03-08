@@ -59,17 +59,66 @@ jobs:
           DYNAMIC_COUNT=$(grep -c 'DYNAMIC_CAREER:' dist/index.html || true)
           echo "Dynamic placeholders: $DYNAMIC_COUNT" >> $GITHUB_STEP_SUMMARY
 
-      # Step 3: 動的部分のみ Claude で生成（has_org: true + projects 空の会社のみ）
+      # Step 3: ハッシュ計算・比較（PR データに変化があるかチェック）
+      - name: Restore career data from R2
+        run: |
+          mkdir -p data/career-hash data/career-json
+          for FILE in career-hash/medii.sha256 career-hash/andd.sha256 career-json/medii.json career-json/andd.json; do
+            npx wrangler r2 object get "884js-data/$FILE" --file "./data/$FILE" 2>/dev/null || echo "  $FILE: not found (first run)"
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        continue-on-error: true
+
+      - name: Compute hashes and compare
+        id: hash-check
+        run: |
+          mkdir -p data/career-hash data/career-json
+
+          # 会社キー → Org名 マッピング
+          declare -A ORG_MAP=( ["medii"]="medii-jp" ["andd"]="anddtokyo" )
+          ANY_CHANGED=false
+
+          for KEY in medii andd; do
+            ORG="${ORG_MAP[$KEY]}"
+
+            # 現在の PR データからハッシュ計算
+            CURRENT_HASH=$(jq -cS "[.org_repos[] | select(.org == \"$ORG\") | select(has(\"my_merged_prs\")) | .my_merged_prs[]] | sort_by(.merged_at)" data/github-data.json | sha256sum | cut -d' ' -f1)
+            echo "$CURRENT_HASH" > "data/career-hash/${KEY}.sha256.new"
+
+            # 前回ハッシュと比較
+            PREV_HASH=""
+            if [ -f "data/career-hash/${KEY}.sha256" ]; then
+              PREV_HASH=$(cat "data/career-hash/${KEY}.sha256" | tr -d '[:space:]')
+            fi
+
+            if [ "$CURRENT_HASH" = "$PREV_HASH" ] && [ -f "data/career-json/${KEY}.json" ]; then
+              echo "${KEY}_changed=false" >> $GITHUB_OUTPUT
+              echo "  $KEY: unchanged (hash match)"
+            else
+              echo "${KEY}_changed=true" >> $GITHUB_OUTPUT
+              ANY_CHANGED=true
+              echo "  $KEY: CHANGED (hash mismatch or no previous data)"
+            fi
+          done
+
+          echo "any_changed=$ANY_CHANGED" >> $GITHUB_OUTPUT
+          echo "## Hash Check" >> $GITHUB_STEP_SUMMARY
+          echo "any_changed: $ANY_CHANGED" >> $GITHUB_STEP_SUMMARY
+
+      # Step 4: 動的部分のみ Claude で生成（ハッシュ不一致時のみ）
       - uses: anthropics/claude-code-action@v1
+        if: steps.hash-check.outputs.any_changed == 'true'
         id: claude-dynamic
         with:
           github_token: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: "/generate-dynamic-career"
-          claude_args: "--model claude-sonnet-4-6 --max-turns 50 --allowedTools Read,Edit,Glob,Grep"
+          claude_args: "--model claude-sonnet-4-6 --max-turns 50 --allowedTools Read,Write,Glob,Grep"
 
-      # Step 4: Token Usage レポート
       - name: Report token usage
+        if: steps.hash-check.outputs.any_changed == 'true'
         env:
           DYNAMIC_USAGE: ${{ steps.claude-dynamic.outputs.usage }}
         run: |
@@ -79,7 +128,23 @@ jobs:
           echo "$DYNAMIC_USAGE" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-      # Step 5: Cloudflare Pages にデプロイ
+      # Step 5: JSON → HTML 変換（Claude 実行・スキップどちらでも実行）
+      - name: Render career HTML from JSON
+        run: bash scripts/render-career.sh
+
+      # Step 6: ハッシュ・JSON を R2 に保存（変化があった場合のみ）
+      - name: Save career data to R2
+        if: steps.hash-check.outputs.any_changed == 'true'
+        run: |
+          for KEY in medii andd; do
+            npx wrangler r2 object put "884js-data/career-hash/${KEY}.sha256" --file "./data/career-hash/${KEY}.sha256.new" --content-type text/plain
+            npx wrangler r2 object put "884js-data/career-json/${KEY}.json" --file "./data/career-json/${KEY}.json" --content-type application/json
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Step 7: Cloudflare Pages にデプロイ
       - name: Create Pages project if not exists
         uses: cloudflare/wrangler-action@v3
         with:

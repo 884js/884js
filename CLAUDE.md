@@ -16,6 +16,7 @@ bash scripts/collect-github-data.sh
 - **24時間以内の再実行はスキップ**（`SKIP_IF_WITHIN_HOURS` で閾値変更可能）
 - **離脱済み Org のデータは自動復元**（Org を辞めてもデータは消えない）
 - **データは Cloudflare R2 に永続保存**（バケット: `884js-data`、ワークフロー実行ごとに get/put）
+- **インクリメンタル更新**: PR データの SHA-256 ハッシュで変化を検知し、変化がない週は Claude 呼び出しをスキップ
 
 ### 2. 職務経歴書サイト生成
 
@@ -26,7 +27,16 @@ bash scripts/collect-github-data.sh
 - `templates/site/template.html` のプレースホルダーを実データで置換して `dist/index.html` を生成
 - レスポンシブ・ダークモード対応
 
-### 3. デプロイ（Cloudflare Pages）
+### 3. 動的キャリア生成（JSON 出力方式）
+
+`has_org: true` かつ `projects` が空の会社について、Claude が GitHub PR データを分析し JSON を出力する。
+
+- **出力**: `data/career-json/{key}.json`（会社ごとの構造化データ）
+- **HTML 変換**: `scripts/render-career.sh` が JSON → HTML に決定的に変換し、`dist/index.html` のプレースホルダーを置換
+- **ハッシュスキップ**: PR データの SHA-256 ハッシュが前回と一致する場合、Claude 呼び出しをスキップして前回 JSON を再利用
+- **差分更新**: 前回 JSON が存在する場合、Claude は既存の構造・文体を維持しつつ新規データの差分のみ反映
+
+### 4. デプロイ（Cloudflare Pages）
 
 サイト生成後、同一ワークフロー内で直接 Cloudflare Pages にデプロイする（`dist/` は git 管理外）。
 
