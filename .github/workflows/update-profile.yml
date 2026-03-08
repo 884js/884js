@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
   id-token: write
 
 jobs:
@@ -59,41 +58,37 @@ jobs:
           prompt: "/generate-dynamic-career"
           claude_args: "--model claude-sonnet-4-6 --max-turns 50 --allowedTools Read,Edit,Glob,Grep"
 
-      # Step 4: 変更があればPR作成（Bash）- Claude不要
-      - name: Create PR if changed
+      # Step 4: Token Usage レポート
+      - name: Report token usage
         env:
-          GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
           DYNAMIC_USAGE: ${{ steps.claude-dynamic.outputs.usage }}
         run: |
-          # Token Usage を Step Summary に出力
           echo "## Token Usage" >> $GITHUB_STEP_SUMMARY
           echo "### Dynamic Career Generation" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           echo "$DYNAMIC_USAGE" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-          # 変更チェック
-          git add dist/
-          if git diff --cached --quiet; then
-            echo "No changes detected."
-            echo "## Result" >> $GITHUB_STEP_SUMMARY
-            echo "No changes detected." >> $GITHUB_STEP_SUMMARY
-            exit 0
-          fi
+      # Step 5: Cloudflare Pages にデプロイ
+      - name: Create Pages project if not exists
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create 884js --production-branch=master
+        continue-on-error: true
 
-          # ブランチ作成 → コミット → プッシュ → PR作成
-          BRANCH="chore/update-profile-$(date +%Y-%m-%d-%H%M%S)"
-          git checkout -b "$BRANCH"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: update profile ($(date +%Y-%m-%d))"
-          git push -u origin "$BRANCH"
-          gh pr create \
-            --title "chore: update profile ($(date +%Y-%m-%d))" \
-            --body "職務経歴書サイトの自動更新"
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist/ --project-name=884js
 
-          echo "## Result" >> $GITHUB_STEP_SUMMARY
-          echo "PR created from branch $BRANCH" >> $GITHUB_STEP_SUMMARY
+      - name: Report deploy result
+        run: |
+          echo "## Deploy" >> $GITHUB_STEP_SUMMARY
+          echo "Deployed to Cloudflare Pages" >> $GITHUB_STEP_SUMMARY
 
       # キャッシュ保存（データ収集結果を次回に引き継ぐ）
       - uses: actions/cache/save@v4

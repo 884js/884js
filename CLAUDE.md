@@ -25,21 +25,9 @@ bash scripts/collect-github-data.sh
 - `templates/site/template.html` のプレースホルダーを実データで置換して `dist/index.html` を生成
 - レスポンシブ・ダークモード対応
 
-### 3. 変更のPR作成
+### 3. デプロイ（Cloudflare Pages）
 
-生成したファイルに変更があれば、ブランチを作成してPRを出す:
-```bash
-BRANCH="chore/update-profile-$(date +%Y-%m-%d-%H%M%S)"
-git checkout -b "$BRANCH"
-git add dist/
-git diff --cached --quiet || git commit -m "chore: update profile ($(date +%Y-%m-%d))"
-git push -u origin "$BRANCH"
-gh pr create --title "chore: update profile ($(date +%Y-%m-%d))" --body "職務経歴書サイトの自動更新"
-```
-
-### 4. デプロイ（Cloudflare Pages）
-
-`master` ブランチに `dist/**` の変更が push されると、GitHub Actions（`.github/workflows/deploy-pages.yml`）が自動で Cloudflare Pages にデプロイする。
+サイト生成後、同一ワークフロー内で直接 Cloudflare Pages にデプロイする（`dist/` は git 管理外）。
 
 - **デプロイツール**: `cloudflare/wrangler-action@v3`（`wrangler pages deploy`）
 - **プロジェクト名**: `884js`
