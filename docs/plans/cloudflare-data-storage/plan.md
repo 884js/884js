@@ -1,0 +1,155 @@
+---
+title: GitHub データの Cloudflare R2 移行
+feature-name: cloudflare-data-storage
+status: done
+created: 2026-03-08
+updated: 2026-03-08
+---
+
+# GitHub データの Cloudflare R2 移行
+
+## 概要
+
+GitHub Actions の `actions/cache` で保持している `data/github-data.json` を Cloudflare R2 に移行する。ワークフローのキャッシュステップを R2 操作に置換し、データの永続性と信頼性を向上させる。
+
+### 背景
+
+- 現在 `actions/cache` でデータを保持しているが、7日間未アクセスで自動削除されるリスクがある
+- 週次実行のため通常は問題ないが、ワークフロー失敗や一時停止時にデータ消失の可能性がある
+- Cloudflare R2 は永続ストレージであり、既にデプロイで `wrangler-action@v3` の使用実績がある
+
+### 設計判断
+
+| 観点 | 判断 | 理由 |
+|------|------|------|
+| ストレージ選択 | R2 | KV は結果整合性で不適、D1 はオーバーエンジニアリング |
+| R2 バケット名 | `884js-data` | プロジェクト名 + 用途で命名 |
+| wrangler アクション | `cloudflare/wrangler-action@v3` | 既にデプロイで使用実績あり |
+| 認証情報 | 既存シークレットを再利用 | `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` に R2 権限追加が必要な可能性あり |
+| スクリプト変更 | 不要 | ローカルファイルパス（`data/github-data.json`）は変わらない |
+
+## スコープ
+
+### やること
+
+- `update-deploy-profile.yml` の `actions/cache/restore` を R2 get に置換
+- `update-deploy-profile.yml` の `actions/cache/save` を R2 put に置換
+- R2 バケット作成ステップの追加（冪等、`continue-on-error: true`）
+  - **R2 バケットの事前作成は不要。** ワークフロー内で `wrangler r2 bucket create` を実行し自動作成する（Pages プロジェクト作成と同じ冪等パターン。既存バケットの場合はエラーを `continue-on-error: true` で無視する）
+- `CLAUDE.md` のワークフロー説明を更新（R2 利用について追記）
+
+### やらないこと
+
+- `career.yml` の移行（git 管理を継続）
+- `collect-github-data.sh` の変更（ローカルパスは同じため不要）
+- `generate-site.sh` の変更（不要）
+
+## 受入条件
+
+| # | 受入条件 | 検証方法 |
+|---|---------|---------|
+| AC-1 | `actions/cache/restore` ステップが R2 get に置換されている | ワークフロー YAML の差分確認 |
+| AC-2 | `actions/cache/save` ステップが R2 put に置換されている | ワークフロー YAML の差分確認 |
+| AC-3 | R2 バケット作成ステップが追加されている（冪等、`continue-on-error`） | ワークフロー YAML の差分確認 |
+| AC-4 | 初回実行時（R2 にデータなし）もエラーなく動作する | `continue-on-error: true` による手動実行確認 |
+| AC-5 | データ収集後に R2 へのアップロードが `if: always()` で実行される | ワークフロー YAML の差分確認 |
+| AC-6 | `CLAUDE.md` のワークフロー説明が更新されている | ドキュメントの差分確認 |
+| AC-7 | `workflow_dispatch` で手動実行して動作確認できる | 手動実行による E2E 確認 |
+
+## データフロー
+
+```mermaid
+sequenceDiagram
+    participant GHA as GitHub Actions
+    participant R2 as Cloudflare R2<br>(884js-data)
+    participant Script as collect-github-data.sh
+    participant CFP as Cloudflare Pages
+
+    GHA->>GHA: actions/checkout
+    GHA->>R2: wrangler r2 object get<br>884js-data/github-data.json
+    Note over GHA,R2: continue-on-error: true<br>(初回はファイルなし)
+    R2-->>GHA: data/github-data.json (前回データ)
+    GHA->>Script: bash scripts/collect-github-data.sh
+    Script-->>GHA: data/github-data.json (更新済み)
+    GHA->>GHA: bash scripts/generate-site.sh
+    GHA->>GHA: Claude Code Action (動的生成)
+    GHA->>CFP: wrangler pages deploy dist/
+    GHA->>R2: wrangler r2 object put<br>884js-data/github-data.json
+    Note over GHA,R2: if: always()
+```
+
+## 影響範囲
+
+### 変更対象ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `.github/workflows/update-deploy-profile.yml` | cache restore/save ステップを R2 get/put に置換、R2 バケット作成ステップ追加 |
+| `CLAUDE.md` | ワークフロー説明に R2 利用を追記 |
+
+### ワークフロー変更詳細
+
+#### 削除するステップ
+
+- `actions/cache/restore@v4` ステップ（L26-31）
+- `actions/cache/save@v4` ステップ（L94-98）
+
+#### 追加するステップ
+
+**R2 バケット作成（冪等）**
+- `cloudflare/wrangler-action@v3` で `r2 bucket create 884js-data` を実行
+- `continue-on-error: true`（既存バケットの場合エラーになるため）
+- キャッシュ復元の前に配置
+
+**R2 からデータ取得**
+- `cloudflare/wrangler-action@v3` で `r2 object get 884js-data/github-data.json --file ./data/github-data.json` を実行
+- `continue-on-error: true`（初回実行時はファイルが存在しないため）
+- 認証: `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`
+
+**R2 へデータアップロード**
+- `cloudflare/wrangler-action@v3` で `r2 object put 884js-data/github-data.json --file ./data/github-data.json --content-type application/json` を実行
+- `if: always()`（データ収集失敗時も前回データを保持するため）
+- 認証: `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`
+
+### CLAUDE.md 変更詳細
+
+- 「ワークフロー」セクション内に R2 によるデータ永続化の説明を追記
+- `CLOUDFLARE_API_TOKEN` の必要権限に R2 read/write を追記
+
+## テスト方針
+
+| # | テスト項目 | 対応AC | 方法 |
+|---|----------|--------|------|
+| 1 | R2 get ステップでデータが取得できる | AC-1 | `workflow_dispatch` で手動実行し、ステップログを確認 |
+| 2 | R2 put ステップでデータがアップロードされる | AC-2, AC-5 | 実行後に Cloudflare ダッシュボードで `884js-data` バケットを確認 |
+| 3 | R2 バケット作成が冪等に動作する | AC-3 | 2回目の実行でバケット作成ステップがエラーにならない（`continue-on-error`）ことを確認 |
+| 4 | 初回実行（R2 にデータなし）でもワークフローが正常完了する | AC-4 | 空バケット状態で `workflow_dispatch` を実行 |
+| 5 | 2回目の実行で前回データが R2 から取得される | AC-1, AC-2 | 2回目の実行ログで R2 get が成功していることを確認 |
+| 6 | CLAUDE.md が更新されている | AC-6 | ドキュメント差分の目視確認 |
+| 7 | 手動実行で E2E 動作確認 | AC-7 | `workflow_dispatch` でトリガーし、サイトが正常にデプロイされることを確認 |
+
+## 実装タスク
+
+| # | タスク | 対象ファイル | 見積 |
+|---|-------|------------|------|
+| T1 | cache restore ステップを R2 get に置換 + R2 バケット作成ステップ追加（バケットはワークフロー内で自動作成。事前作成不要） | `.github/workflows/update-deploy-profile.yml` | S |
+| T2 | cache save ステップを R2 put に置換（`if: always()` 維持） | `.github/workflows/update-deploy-profile.yml` | S |
+| T3 | CLAUDE.md のワークフロー説明を更新（R2 利用について追記） | `CLAUDE.md` | S |
+| T4 | CLOUDFLARE_API_TOKEN の権限確認: R2 read/write に加え、バケット作成（`r2 bucket create`）にも権限が必要 | - (手動) | 手動 |
+| T5 | `workflow_dispatch` で手動実行して動作確認 | - (手動) | 手動 |
+
+### 依存関係
+
+```mermaid
+graph LR
+    T1 --> T2
+    T2 --> T3
+    T3 --> T4
+    T4 --> T5
+```
+
+## 参考資料
+
+- [docs/plans/cloudflare-data-storage/research.md](research.md) - R2 選定の調査結果
+- [Cloudflare R2 ドキュメント](https://developers.cloudflare.com/r2/)
+- [cloudflare/wrangler-action](https://github.com/cloudflare/wrangler-action)

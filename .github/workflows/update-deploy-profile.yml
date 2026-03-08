@@ -22,13 +22,23 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      # キャッシュから前回データを復元
-      - uses: actions/cache/restore@v4
-        id: data-cache
+      # R2 バケット作成（初回のみ、冪等）
+      - name: Create R2 bucket if not exists
+        uses: cloudflare/wrangler-action@v3
         with:
-          key: github-data-${{ github.run_id }}
-          restore-keys: github-data-
-          path: data/
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: r2 bucket create 884js-data
+        continue-on-error: true
+
+      # R2 から前回データを取得
+      - name: Restore data from R2
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: r2 object get 884js-data/github-data.json --file ./data/github-data.json
+        continue-on-error: true
 
       # Step 1: データ収集（Bash）- Claude不要、差分更新対応
       - name: Collect GitHub data
@@ -90,9 +100,11 @@ jobs:
           echo "## Deploy" >> $GITHUB_STEP_SUMMARY
           echo "Deployed to Cloudflare Pages" >> $GITHUB_STEP_SUMMARY
 
-      # キャッシュ保存（データ収集結果を次回に引き継ぐ）
-      - uses: actions/cache/save@v4
+      # データを R2 に保存（次回に引き継ぐ）
+      - name: Save data to R2
         if: always()
+        uses: cloudflare/wrangler-action@v3
         with:
-          key: github-data-${{ github.run_id }}
-          path: data/
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: r2 object put 884js-data/github-data.json --file ./data/github-data.json --content-type application/json
