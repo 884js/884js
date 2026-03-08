@@ -21,6 +21,15 @@
     </div>
   </header>
 
+  <nav>
+    <div class="container nav-links">
+      <a href="#summary">Summary</a>
+      <a href="#skills">Skills</a>
+      <a href="#career">Career</a>
+      <a href="#stats">Stats</a>
+    </div>
+  </nav>
+
   <main class="container">
     <section id="summary">
       <h2>概要</h2>
@@ -112,132 +121,14 @@
           <div class="career-period">2025-02 ~ 現在</div>
           <div class="career-role">フロントエンドエンジニア（業務委託）</div>
           <div class="career-business">【事業内容：医療系プラットフォームの開発】</div>
-
-          <div class="career-project">
-            <h4>AIエージェント機能の設計・実装</h4>
-            <div class="project-meta">
-              <span class="project-period">2025-10 ~ 2026-02</span>
-              <span class="project-role">バックエンドエンジニア</span>
-            </div>
-            <div class="project-tech">
-              <span class="skill-tag">Go</span>
-              <span class="skill-tag">LLM API</span>
-              <span class="skill-tag">PostgreSQL</span>
-            </div>
-            <p class="project-summary">既存のLLM連携フローを外部APIベースに段階的に移行しつつ、チャット内でのキーワード自動検知・専門家向け情報提案機能をDB設計からAPI実装まで一貫して担当。</p>
-            <ul class="project-achievements">
-              <li>専門家向け情報提案エージェントの判定ロジックをDB設計（5テーブル）・API実装まで担当（関連PR 2件、約6,570行の追加）</li>
-              <li>外部サービス連携による自動文書生成ロジックをLLM APIベースに移行（3件のLLM移行PR）</li>
-              <li>質問タイプ（治療・鑑別診断・その他）に応じてプロンプトを動的選択する応答生成フローを設計・実装</li>
-              <li>テーブルドリブン形式のユニットテストを整備し、複雑な判定ロジックの品質を担保</li>
-            </ul>
-          </div>
-
-          <div class="career-project">
-            <h4>専門家向けチャット機能の拡張（API・DB設計）</h4>
-            <div class="project-meta">
-              <span class="project-period">2026-01 ~ 2026-03</span>
-              <span class="project-role">バックエンドエンジニア</span>
-            </div>
-            <div class="project-tech">
-              <span class="skill-tag">Go</span>
-              <span class="skill-tag">PostgreSQL</span>
-            </div>
-            <p class="project-summary">専門家向けチャット画面へのMarkdown対応メモ機能追加、文献・ガイドライン参照表示の改善、ゲストユーザー向け機能の拡張など、複数の機能開発を担当。</p>
-            <ul class="project-achievements">
-              <li>Markdown対応メモ機能をDB設計・マイグレーション・API実装まで一貫して担当（約1,580行の追加、テーブルドリブンテスト込み）</li>
-              <li>文献・ガイドラインの参照情報をメッセージ単位でマッピングするAPIを設計・実装（約700行の追加）</li>
-              <li>ゲストユーザー向け下書き・提案機能を権限チェック・認証フローと合わせて実装（約1,160行の追加）</li>
-            </ul>
-          </div>
-
-          <div class="career-project">
-            <h4>開発基盤整備・リリースプロセスの自動化</h4>
-            <div class="project-meta">
-              <span class="project-period">2025-11 ~ 2026-02</span>
-              <span class="project-role">開発エンジニア</span>
-            </div>
-            <div class="project-tech">
-              <span class="skill-tag">GitHub Actions</span>
-              <span class="skill-tag">Go</span>
-            </div>
-            <p class="project-summary">リリースPRの自動生成ワークフロー導入、認証ミドルウェアの強化、CORSセキュリティ改善など、開発基盤の整備を担当。</p>
-            <ul class="project-achievements">
-              <li>ブランチ比較から本文・統計を自動生成するリリースPR自動化ワークフローを構築</li>
-              <li>認証ミドルウェアを強化し、テーブルドリブン形式で正常系・異常系テストを整備</li>
-              <li>CORSオリジン判定ロジックを関数化し、ワイルドカード照合の安全な実装とテストを追加</li>
-            </ul>
-          </div>
+          <!-- DYNAMIC_CAREER:株式会社Medii -->
         </div>
         <div class="career-item">
           <h3>株式会社and.d</h3>
           <div class="career-period">2021-12 ~ 現在</div>
           <div class="career-role">フロントエンドエンジニア（業務委託）</div>
           <div class="career-business">【事業内容：Shopifyアプリ開発・ECストア構築】</div>
-
-          <div class="career-project">
-            <h4>ECストア向けAIチャットサポートシステムの新規開発</h4>
-            <div class="project-meta">
-              <span class="project-period">2025-11 ~ 現在</span>
-              <span class="project-role">フルスタックエンジニア</span>
-            </div>
-            <div class="project-tech">
-              <span class="skill-tag">TypeScript</span>
-              <span class="skill-tag">Next.js</span>
-              <span class="skill-tag">Node.js</span>
-              <span class="skill-tag">Shopify API</span>
-              <span class="skill-tag">LLM API</span>
-              <span class="skill-tag">PostgreSQL</span>
-              <span class="skill-tag">GitHub Actions</span>
-            </div>
-            <p class="project-summary">ECストア向けのAI搭載チャットサポートシステムをゼロから設計・開発。Shopify管理画面へのEmbed、ストアフロント埋め込みウィジェット、LLMを用いたチャット応答機能を実装。</p>
-            <ul class="project-achievements">
-              <li>API・チャット機能・管理画面のモノレポ構成を設計し、GitHub ActionsでAPI/フロント/ウィジェット各サービスのCI/CDを整備</li>
-              <li>ストアフロント埋め込みウィジェットを実装し、LLMを用いたShopify連携チャット応答機能を構築（約6,700行の追加）</li>
-              <li>注文キャンセルや商品検索などのShopifyアクションをチャット内から実行できる機能を実装（PR 2件、約5,700行）</li>
-              <li>AIパイプラインをサービス層として分離し、メッセージ処理との責務を明確化（アーキテクチャ改善）</li>
-              <li>Shopifyへの安全なデプロイワークフロー（dev/prod/custom環境別）を構築し、意図しない拡張機能削除を防ぐCI設定を導入</li>
-            </ul>
-          </div>
-
-          <div class="career-project">
-            <h4>ShopifyアプリのCI/CD整備・外部連携機能の開発</h4>
-            <div class="project-meta">
-              <span class="project-period">2025-07 ~ 2025-10</span>
-              <span class="project-role">フロントエンドエンジニア</span>
-            </div>
-            <div class="project-tech">
-              <span class="skill-tag">TypeScript</span>
-              <span class="skill-tag">React</span>
-              <span class="skill-tag">Stripe</span>
-              <span class="skill-tag">GitHub Actions</span>
-              <span class="skill-tag">Azure</span>
-            </div>
-            <p class="project-summary">既存ShopifyアプリのCI/CD整備、Shopifyネイティブインストールフロー対応、決済サービス連携のバグ修正など、機能拡張と開発基盤整備を担当。</p>
-            <ul class="project-achievements">
-              <li>API・フロントエンド・ウィジェットのCIをGitHub Actionsで整備し、自動テスト・ビルドを統合</li>
-              <li>Shopify側起点のネイティブインストールフローを設計・実装（既存の管理画面連携フローとの両立）</li>
-              <li>決済サービスのキャンセルイベントがアプリに反映されない不具合を修正（Webhookフロー改善）</li>
-              <li>TypeScript strictNullChecksを有効化し、116ファイルにわたる型検査エラーを修正・型安全性を向上</li>
-            </ul>
-          </div>
-
-          <div class="career-project">
-            <h4>ShopifyテーマカスタマイズとECストア構築</h4>
-            <div class="project-meta">
-              <span class="project-period">2021-12 ~ 2022-03</span>
-              <span class="project-role">フロントエンドエンジニア</span>
-            </div>
-            <div class="project-tech">
-              <span class="skill-tag">TypeScript</span>
-              <span class="skill-tag">Shopify Liquid</span>
-            </div>
-            <p class="project-summary">ShopifyテーマのOnline Store 2.0対応および機能カスタマイズを担当。</p>
-            <ul class="project-achievements">
-              <li>Shopify Online Store 2.0形式のテーマへの対応とスタイル調整を実施</li>
-              <li>カスタムセクション・ブロックを実装し、ストア独自の機能を追加</li>
-            </ul>
-          </div>
+          <!-- DYNAMIC_CAREER:株式会社and.d -->
         </div>
         <div class="career-item">
           <h3>スマートキャンプ株式会社</h3>
@@ -450,20 +341,24 @@
       <h2>Stats</h2>
       <div class="stats-grid">
                 <div class="stat-card">
-          <div class="stat-value">401</div>
-          <div class="stat-label">マージ済みPR数</div>
+          <div class="stat-value">149</div>
+          <div class="stat-label">Merged PRs</div>
+          <div class="stat-note">in Organization</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">381289+</div>
-          <div class="stat-label">コード貢献量（行）</div>
+          <div class="stat-value">180556+</div>
+          <div class="stat-label">Lines Contributed</div>
+          <div class="stat-note">in Organization</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">72</div>
-          <div class="stat-label">公開リポジトリ数</div>
+          <div class="stat-label">Public Repos</div>
+          <div class="stat-note">Personal GitHub</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">9年+</div>
-          <div class="stat-label">エンジニア経験</div>
+          <div class="stat-value">9+</div>
+          <div class="stat-label">Years of Experience</div>
+          <div class="stat-note">as Software Engineer</div>
         </div>
       </div>
     </section>
@@ -471,7 +366,7 @@
 
   <footer>
     <div class="container">
-      <p>Last updated: 2026-03-05</p>
+      <p>Last updated: 2026-03-07</p>
     </div>
   </footer>
 </body>
