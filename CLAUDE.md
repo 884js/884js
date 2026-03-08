@@ -14,7 +14,8 @@ bash scripts/collect-github-data.sh
 - Org リポジトリは `gh api user/orgs` で所属 Org を自動取得して収集
 - PR取得は GraphQL で body/additions/deletions/changed_files を一括取得（並列実行）
 - **24時間以内の再実行はスキップ**（`SKIP_IF_WITHIN_HOURS` で閾値変更可能）
-- **離脱済み Org のデータはキャッシュから自動復元**（Org を辞めてもデータは消えない）
+- **離脱済み Org のデータは自動復元**（Org を辞めてもデータは消えない）
+- **データは Cloudflare R2 に永続保存**（バケット: `884js-data`、ワークフロー実行ごとに get/put）
 
 ### 2. 職務経歴書サイト生成
 
@@ -32,7 +33,7 @@ bash scripts/collect-github-data.sh
 - **デプロイツール**: `cloudflare/wrangler-action@v3`（`wrangler pages deploy`）
 - **プロジェクト名**: `884js`
 - **必要な GitHub Secrets**:
-  - `CLOUDFLARE_API_TOKEN`: Cloudflare ダッシュボード → My Profile → API Tokens で作成（Cloudflare Pages Edit 権限）
+  - `CLOUDFLARE_API_TOKEN`: Cloudflare ダッシュボード → My Profile → API Tokens で作成（Cloudflare Pages Edit + R2 read/write 権限）
   - `CLOUDFLARE_ACCOUNT_ID`: Cloudflare ダッシュボードの URL またはサイドバーから取得
 
 ## career.yml の構成
