@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="UTF-8">
+<title>ポートフォリオ動作確認</title>
+<h1>ポートフォリオ動作確認</h1>
+<p id="result" role="status">確認中…</p>
+<iframe title="検証するポートフォリオ" style="width:1487px;height:1058px;border:0"></iframe>
+<script type="module">
+  const frame = document.querySelector('iframe');
+  const result = document.querySelector('#result');
+  let checks = 0;
+  function assert(condition, message) {
+    if (!condition) throw new Error(message);
+    checks++;
+  }
+  frame.onload = async () => {
+    try {
+      const doc = frame.contentDocument;
+      const q = selector => doc.querySelector(selector);
+      const buttons = [...doc.querySelectorAll('.project-select')];
+      assert(buttons.length === 8, '8作品を表示する');
+      for (const button of [...buttons, buttons[0]]) {
+        button.click();
+        const row = button.closest('.project-row');
+        const sourceLink = row.querySelector('.project-link');
+        assert(q('#preview-title').textContent === row.querySelector('.project-title').textContent, '選んだ作品を表示する');
+        assert(doc.querySelectorAll('[aria-pressed="true"]').length === 1 && button.getAttribute('aria-pressed') === 'true', '選択は1件にする');
+        assert(q('#preview-image').getAttribute('src') === (row.dataset.preview || row.querySelector('.project-icon').src), '画面とアイコンを切り替える');
+        assert(q('#preview-icon').classList.contains('generic-icon') === row.hasAttribute('data-generic-icon'), '作品を変えた後もアイコンの種類を合わせる');
+        assert(q('#preview-link').hidden === !sourceLink && q('#preview-status').hidden === !!sourceLink, '公開状況を切り替える');
+        assert(sourceLink ? q('#preview-link').href === sourceLink.href : !q('#preview-link').hasAttribute('href'), '別作品のリンクを残さない');
+      }
+      const media = frame.contentWindow.matchMedia('(max-width: 980px)');
+      async function resize(width) {
+        const changed = new Promise(resolve => media.addEventListener('change', resolve, {once: true}));
+        frame.style.width = `${width}px`;
+        await changed;
+      }
+      await resize(390);
+      buttons[0].focus();
+      buttons[0].click();
+      assert(q('#preview-dialog').open && q('#project-preview').parentElement === q('#preview-dialog'), 'スマホではダイアログを開く');
+      q('.close-preview').click();
+      assert(!q('#preview-dialog').open && doc.activeElement === buttons[0], '閉じると元の項目へ戻る');
+      buttons[0].click();
+      await resize(1487);
+      assert(!q('#preview-dialog').open && q('#project-preview').parentElement === q('.preview-host'), 'PC幅に戻したら右側に表示する');
+      result.textContent = `PASS: ${checks}項目を確認しました。`;
+    } catch (error) {
+      result.textContent = `FAIL: ${error.message}`;
+    }
+  };
+  frame.src = '../dist/index.html';
+</script>
+</html>

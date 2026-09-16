@@ -33,6 +33,14 @@ python3 -m http.server 4173 --directory dist
 
 本文・スタイル・画像は `templates/site/` で管理する。生成先の `dist/` はGit管理外。
 
+PCでは一覧から作品を選ぶと右のプレビューが切り替わる。スマートフォンではプレビューをダイアログで表示する。
+
+UIアイコンには[Tabler Icons](https://tabler.io/icons)を使用している。[MITライセンス](templates/site/assets/tabler-license.txt)。
+
+### 切り替え動作の確認
+
+生成後、リポジトリのルートで `python3 -m http.server 4174 --bind 127.0.0.1` を実行し、[動作確認ページ](http://127.0.0.1:4174/scripts/check-portfolio.html)を開く。作品選択、公開先、スマートフォン表示の切り替えを確認し、結果を表示する。
+
 ## 本番に反映する
 
 Cloudflareにログインした環境で、生成後に実行する。

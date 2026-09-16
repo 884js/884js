@@ -4,13 +4,15 @@
 
 - 本文・掲載先: `templates/site/template.html`
 - スタイル: `templates/site/styles.css`
+- プレビュー切り替え: `templates/site/portfolio.js`
 - 画像: `templates/site/assets/`
 - 生成: `bash scripts/generate-site.sh` → `dist/`
 - 確認: `python3 -m http.server 4173 --directory dist`
 
 ## 更新方針
 
-- PCは2列、スマートフォンは1列。作品ごとの色と実際のアイコンを使う。
+- PCは左に作品一覧、右に選択した作品のプレビューを表示する。スマートフォンでは作品を選ぶとダイアログを開く。
+- 実際のアプリアイコンと画面を使う。
 - 説明は短く、利用できる公開ページにリンクする。
 - 非公開リポジトリ、社内情報、認証情報を公開するHTMLに含めない。
 - 公開先が未確定の作品にダミーのリンクを付けない。
