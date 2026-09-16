@@ -1,0 +1,25 @@
+# Generated site
+dist/
+
+# Local data and verification artifacts
+data/
+career.json
+design-qa.md
+.claude/worktrees/
+
+# Wrangler
+.wrangler/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
