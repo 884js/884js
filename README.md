@@ -1,6 +1,6 @@
 # 884js
 
-林悠暉がつくったアプリと、小さなツールのポートフォリオ。
+林悠暉が個人で開発したアプリとツールの一覧。
 
 [ポートフォリオを見る](https://884js.pages.dev/)
 
@@ -8,19 +8,19 @@
 
 | 作品 | 概要 | 公開先 |
 | --- | --- | --- |
-| 一言日記 | 14文字で残す、今日のこと。 | [App Store](https://apps.apple.com/jp/app/id6763487075) |
-| wish notes | いつかの願いを、一冊のノートに。 | 公開準備中 |
-| かぞくのパスワード帳 | 家族の大切な情報を、手元に。 | [App Store](https://apps.apple.com/jp/app/id6796645047) |
-| 無限リマインダー | 止めるまで、繰り返し知らせる。 | [App Store](https://apps.apple.com/jp/app/id6765719923) |
+| 一言日記 | 14文字で日記をつけるアプリ。 | [App Store](https://apps.apple.com/jp/app/id6763487075) |
+| wish notes | やりたいことや願いを記録するアプリ。 | 公開準備中 |
+| かぞくのパスワード帳 | 家族のパスワードや情報を管理するアプリ。 | [App Store](https://apps.apple.com/jp/app/id6796645047) |
+| 無限リマインダー | 停止するまで繰り返し通知するアプリ。 | [App Store](https://apps.apple.com/jp/app/id6765719923) |
 
 ## ツール
 
 | 作品 | 概要 | 公開先 |
 | --- | --- | --- |
-| workout-mcp | AIとの会話で、筋トレの計画と記録を。 | 公開準備中 |
-| Editor Tab Manager | いくつものエディタを、ひとつのタブバーに。 | [GitHub](https://github.com/884js/editor-tab-manager) |
-| Expo iOS Release | iOSアプリのリリースを、AIエージェントと。 | [GitHub](https://github.com/884js/expo-ios-release-agent-plugin) |
-| agent-plugins | AIが変更する前に、コードのセーブポイントを。 | [GitHub](https://github.com/884js/agent-plugins) |
+| workout-mcp | AIとの会話で筋トレの計画・記録を管理。 | 公開準備中 |
+| Editor Tab Manager | 複数のエディタウィンドウをタブで切り替え。 | [GitHub](https://github.com/884js/editor-tab-manager) |
+| Expo iOS Release | Expo製iOSアプリのリリース作業を支援。 | [GitHub](https://github.com/884js/expo-ios-release-agent-plugin) |
+| agent-plugins | コードの変更前に自動保存するClaude Codeプラグイン。 | [GitHub](https://github.com/884js/agent-plugins) |
 
 ## ローカルで確認する
 
