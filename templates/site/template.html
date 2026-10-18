@@ -3,143 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="林悠暉（884js）がつくったアプリとツール。一言日記、wish notes、かぞくのパスワード帳、無限リマインダーなど。">
+  <meta name="description" content="884js / 林 悠暉。一言日記、wish notes、かぞくのパスワード帳、無限リマインダーなど。">
   <meta name="theme-color" content="#ffffff">
-  <title>884js — アプリ・ツール一覧</title>
+  <title>884js / 林 悠暉</title>
   <link rel="canonical" href="https://884js.pages.dev/">
   <link rel="icon" href="data:,">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <script src="portfolio.js" defer></script>
 </head>
-<body id="top">
+<body>
   <a class="skip-link" href="#works">作品一覧へ</a>
   <header class="site-header container">
-    <a class="identity" href="#top" aria-label="884js ホーム">
-      <span class="wordmark">884js</span>
+    <div class="identity">
+      <h1>884js</h1>
       <span class="creator">林 悠暉</span>
-    </a>
-    <a class="header-link" href="https://github.com/884js" target="_blank" rel="noopener noreferrer">GitHub <span class="external-icon" aria-hidden="true"></span></a>
+    </div>
+    <a class="header-link" href="https://github.com/884js" target="_blank" rel="noopener noreferrer">GitHub</a>
   </header>
 
-  <main class="portfolio container">
-    <div class="work-index">
-      <section class="intro" aria-labelledby="intro-title">
-        <h1 id="intro-title">アプリ・ツール一覧</h1>
-        <p>個人で開発したアプリとツールを紹介しています。</p>
-      </section>
-
-      <section id="works" class="category" aria-labelledby="apps-title">
-        <h2 id="apps-title">アプリ</h2>
-        <div class="project-list">
-          <article class="project-row" data-preview="assets/word-diary-screen.png">
-            <button class="project-select" type="button" aria-pressed="true" aria-controls="project-preview" aria-label="一言日記のプレビュー">
-              <img class="project-icon" src="assets/word-diary-icon.png" width="64" height="64" alt="">
-              <span class="project-copy"><span class="project-title">一言日記</span><span class="project-description">14文字で日記をつけるアプリ。</span></span>
-              <span class="platform">iOS</span>
-            </button>
-            <a class="project-link" href="https://apps.apple.com/jp/app/id6763487075" target="_blank" rel="noopener noreferrer" aria-label="一言日記をApp Storeで見る">App Storeで見る <span class="arrow-icon" aria-hidden="true"></span></a>
-          </article>
-
-          <article class="project-row">
-            <button class="project-select" type="button" aria-pressed="false" aria-controls="project-preview" aria-label="wish notesのプレビュー">
-              <img class="project-icon" src="assets/wish-notes-icon.png" width="64" height="64" alt="">
-              <span class="project-copy"><span class="project-title">wish notes</span><span class="project-description">やりたいことや願いを記録するアプリ。</span></span>
-              <span class="platform">iOS</span>
-            </button>
-            <span class="project-status">公開準備中</span>
-          </article>
-
-          <article class="project-row">
-            <button class="project-select" type="button" aria-pressed="false" aria-controls="project-preview" aria-label="かぞくのパスワード帳のプレビュー">
-              <img class="project-icon" src="assets/family-vault-icon.png" width="64" height="64" alt="">
-              <span class="project-copy"><span class="project-title">かぞくのパスワード帳</span><span class="project-description">家族のパスワードや情報を管理するアプリ。</span></span>
-              <span class="platform">iOS</span>
-            </button>
-            <a class="project-link" href="https://apps.apple.com/jp/app/id6796645047" target="_blank" rel="noopener noreferrer" aria-label="かぞくのパスワード帳をApp Storeで見る">App Storeで見る <span class="arrow-icon" aria-hidden="true"></span></a>
-          </article>
-
-          <article class="project-row">
-            <button class="project-select" type="button" aria-pressed="false" aria-controls="project-preview" aria-label="無限リマインダーのプレビュー">
-              <img class="project-icon" src="assets/mugen-reminder-icon.png" width="64" height="64" alt="">
-              <span class="project-copy"><span class="project-title">無限リマインダー</span><span class="project-description">停止するまで繰り返し通知するアプリ。</span></span>
-              <span class="platform">iOS</span>
-            </button>
-            <a class="project-link" href="https://apps.apple.com/jp/app/id6765719923" target="_blank" rel="noopener noreferrer" aria-label="無限リマインダーをApp Storeで見る">App Storeで見る <span class="arrow-icon" aria-hidden="true"></span></a>
-          </article>
-        </div>
-      </section>
-
-      <section class="category" aria-labelledby="tools-title">
-        <h2 id="tools-title">ツール</h2>
-        <div class="project-list">
-          <article class="project-row">
-            <button class="project-select" type="button" aria-pressed="false" aria-controls="project-preview" aria-label="workout-mcpのプレビュー">
-              <img class="project-icon" src="assets/workout-mcp-icon.png" width="64" height="64" alt="">
-              <span class="project-copy"><span class="project-title">workout-mcp</span><span class="project-description">AIとの会話で筋トレの計画・記録を管理。</span></span>
-              <span class="platform">MCP</span>
-            </button>
-            <span class="project-status">公開準備中</span>
-          </article>
-
-          <article class="project-row">
-            <button class="project-select" type="button" aria-pressed="false" aria-controls="project-preview" aria-label="Editor Tab Managerのプレビュー">
-              <img class="project-icon" src="assets/editor-tab-manager-icon.png" width="64" height="64" alt="">
-              <span class="project-copy"><span class="project-title">Editor Tab Manager</span><span class="project-description">複数のエディタウィンドウをタブで切り替え。</span></span>
-              <span class="platform">macOS</span>
-            </button>
-            <a class="project-link" href="https://github.com/884js/editor-tab-manager" target="_blank" rel="noopener noreferrer" aria-label="Editor Tab ManagerをGitHubで見る">GitHubで見る <span class="arrow-icon" aria-hidden="true"></span></a>
-          </article>
-
-          <article class="project-row" data-generic-icon>
-            <button class="project-select" type="button" aria-pressed="false" aria-controls="project-preview" aria-label="Expo iOS Releaseのプレビュー">
-              <img class="project-icon generic-icon" src="assets/tabler-file-description.svg" width="64" height="64" alt="">
-              <span class="project-copy"><span class="project-title">Expo iOS Release</span><span class="project-description">Expo製iOSアプリのリリース作業を支援。</span></span>
-              <span class="platform">Agent Plugin</span>
-            </button>
-            <a class="project-link" href="https://github.com/884js/expo-ios-release-agent-plugin" target="_blank" rel="noopener noreferrer" aria-label="Expo iOS ReleaseをGitHubで見る">GitHubで見る <span class="arrow-icon" aria-hidden="true"></span></a>
-          </article>
-
-          <article class="project-row" data-generic-icon>
-            <button class="project-select" type="button" aria-pressed="false" aria-controls="project-preview" aria-label="agent-pluginsのプレビュー">
-              <img class="project-icon generic-icon" src="assets/tabler-code.svg" width="64" height="64" alt="">
-              <span class="project-copy"><span class="project-title">agent-plugins</span><span class="project-description">コードの変更前に自動保存するClaude Codeプラグイン。</span></span>
-              <span class="platform">Claude Code</span>
-            </button>
-            <a class="project-link" href="https://github.com/884js/agent-plugins" target="_blank" rel="noopener noreferrer" aria-label="agent-pluginsをGitHubで見る">GitHubで見る <span class="arrow-icon" aria-hidden="true"></span></a>
-          </article>
-        </div>
-      </section>
-    </div>
-
-    <div class="preview-host">
-      <aside id="project-preview" class="preview-panel" aria-labelledby="preview-title">
-        <div class="preview-header">
-          <img id="preview-icon" src="assets/word-diary-icon.png" width="108" height="108" alt="">
-          <div class="preview-copy" aria-live="polite" aria-atomic="true">
-            <h2 id="preview-title">一言日記</h2>
-            <p id="preview-description">14文字で日記をつけるアプリ。</p>
-            <p id="preview-platform">iOS</p>
+  <main id="works" class="container" tabindex="-1">
+    <section class="category" aria-labelledby="apps-title">
+      <h2 id="apps-title">アプリ</h2>
+      <ul class="project-list">
+        <li>
+          <a class="project-row" href="https://apps.apple.com/jp/app/id6763487075" target="_blank" rel="noopener noreferrer">
+            <img class="project-icon" src="assets/word-diary-icon.png" width="44" height="44" alt="">
+            <div class="project-copy"><h3>一言日記</h3><p>14文字でつける日記。</p></div>
+            <span class="project-meta"><span class="platform">iOS</span><span class="project-destination">App Store <span class="external-icon" aria-hidden="true"></span></span></span>
+          </a>
+        </li>
+        <li>
+          <div class="project-row">
+            <img class="project-icon" src="assets/wish-notes-icon.png" width="44" height="44" alt="">
+            <div class="project-copy"><h3>wish notes</h3><p>やりたいことや願いのメモ。</p></div>
+            <span class="project-meta"><span class="platform">iOS</span><span class="project-status">公開準備中</span></span>
           </div>
-        </div>
-        <div id="preview-media" class="preview-media has-screen">
-          <img id="preview-image" src="assets/word-diary-screen.png" width="1320" height="2868" alt="一言日記の画面" fetchpriority="high">
-        </div>
-        <a id="preview-link" class="preview-link" href="https://apps.apple.com/jp/app/id6763487075" target="_blank" rel="noopener noreferrer"><span id="preview-link-label">App Storeで見る</span><span class="arrow-icon" aria-hidden="true"></span></a>
-        <p id="preview-status" class="preview-status" hidden>公開準備中</p>
-      </aside>
-    </div>
+        </li>
+        <li>
+          <a class="project-row" href="https://apps.apple.com/jp/app/id6796645047" target="_blank" rel="noopener noreferrer">
+            <img class="project-icon" src="assets/family-vault-icon.png" width="44" height="44" alt="">
+            <div class="project-copy"><h3>かぞくのパスワード帳</h3><p>家族のパスワードや情報をまとめて管理。</p></div>
+            <span class="project-meta"><span class="platform">iOS</span><span class="project-destination">App Store <span class="external-icon" aria-hidden="true"></span></span></span>
+          </a>
+        </li>
+        <li>
+          <a class="project-row" href="https://apps.apple.com/jp/app/id6765719923" target="_blank" rel="noopener noreferrer">
+            <img class="project-icon" src="assets/mugen-reminder-icon.png" width="44" height="44" alt="">
+            <div class="project-copy"><h3>無限リマインダー</h3><p>止めるまで繰り返し通知。</p></div>
+            <span class="project-meta"><span class="platform">iOS</span><span class="project-destination">App Store <span class="external-icon" aria-hidden="true"></span></span></span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="category" aria-labelledby="tools-title">
+      <h2 id="tools-title">ツール</h2>
+      <ul class="project-list">
+        <li>
+          <div class="project-row">
+            <img class="project-icon" src="assets/workout-mcp-icon.png" width="44" height="44" alt="">
+            <div class="project-copy"><h3>workout-mcp</h3><p>AIとの会話で筋トレを計画・記録。</p></div>
+            <span class="project-meta"><span class="platform">MCP</span><span class="project-status">公開準備中</span></span>
+          </div>
+        </li>
+        <li>
+          <a class="project-row" href="https://github.com/884js/editor-tab-manager" target="_blank" rel="noopener noreferrer">
+            <img class="project-icon" src="assets/editor-tab-manager-icon.png" width="44" height="44" alt="">
+            <div class="project-copy"><h3>Editor Tab Manager</h3><p>エディタのウィンドウをタブで切り替え。</p></div>
+            <span class="project-meta"><span class="platform">macOS</span><span class="project-destination">GitHub <span class="external-icon" aria-hidden="true"></span></span></span>
+          </a>
+        </li>
+        <li>
+          <a class="project-row" href="https://github.com/884js/expo-ios-release-agent-plugin" target="_blank" rel="noopener noreferrer">
+            <img class="project-icon generic-icon" src="assets/tabler-file-description.svg" width="44" height="44" alt="">
+            <div class="project-copy"><h3>Expo iOS Release</h3><p>Expo製iOSアプリのリリースを支援。</p></div>
+            <span class="project-meta"><span class="platform">Agent Plugin</span><span class="project-destination">GitHub <span class="external-icon" aria-hidden="true"></span></span></span>
+          </a>
+        </li>
+        <li>
+          <a class="project-row" href="https://github.com/884js/agent-plugins" target="_blank" rel="noopener noreferrer">
+            <img class="project-icon generic-icon" src="assets/tabler-code.svg" width="44" height="44" alt="">
+            <div class="project-copy"><h3>agent-plugins</h3><p>Claude Codeで変更前のコードを自動保存。</p></div>
+            <span class="project-meta"><span class="platform">Claude Code</span><span class="project-destination">GitHub <span class="external-icon" aria-hidden="true"></span></span></span>
+          </a>
+        </li>
+      </ul>
+    </section>
   </main>
 
-  <dialog id="preview-dialog" aria-labelledby="preview-title">
-    <form method="dialog"><button class="close-preview" type="submit">閉じる</button></form>
-  </dialog>
-
   <footer class="site-footer container">
-    <p>884js <span>林 悠暉</span></p>
-    <a href="https://github.com/884js/884js" target="_blank" rel="noopener noreferrer">このサイトのソースコード <span class="external-icon" aria-hidden="true"></span></a>
+    <a href="https://github.com/884js/884js" target="_blank" rel="noopener noreferrer">ソースコード</a>
   </footer>
 </body>
 </html>
