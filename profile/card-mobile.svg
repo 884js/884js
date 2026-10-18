@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="638" viewBox="0 0 320 638" role="img" aria-labelledby="title description" fill="var(--ink)">
   <title id="title">884js / 林 悠暉</title>
   <desc id="description">技術スタック: Web: TypeScript / React / Next.js、モバイル: React Native / Expo、バックエンド: NestJS / Express / Hono / Go / Ruby on Rails、インフラ: Cloudflare / AWS。公開・非公開の活動: コミット（過去1年）4,521、PR（累計）1,657、レビュー（過去1年）586。2026年10月18日時点。</desc>
-  <style>:root {--paper:#faf8ff;--ink:#302447;--muted:#716182;--panel:#eae2fa} @media (prefers-color-scheme: dark) {:root {--paper:#261f34;--ink:#f3edff;--muted:#c4b5d9;--panel:#3c3051}}</style>
+  <style>:root {--paper:#f5f0e7;--ink:#25231f;--muted:#645d54;--panel:#e6dfd2} @media (prefers-color-scheme: dark) {:root {--paper:#22211e;--ink:#f1eadd;--muted:#bab1a2;--panel:#33302b}}</style>
   <defs>
     <clipPath id="card">
       <rect width="320" height="638" rx="16" />
@@ -94,13 +94,13 @@
   </defs>
   <g clip-path="url(#card)">
     <rect x="0" y="0" width="320" height="638" fill="var(--paper)" />
-    <rect x="0" y="0" width="320" height="140" fill="#d4c3ff" />
-    <g role="img" aria-label="林 悠暉" font-size="20.00" fill="#2e2148" transform="translate(156 44) scale(1.25)">
+    <rect x="0" y="0" width="320" height="140" fill="#20201e" />
+    <g role="img" aria-label="林 悠暉" font-size="20.00" fill="#ff7957" transform="translate(156 44) scale(1.25)">
       <use href="#glyph-26519" x="0" />
       <use href="#glyph-24736" x="24.0" />
       <use href="#glyph-26249" x="40.0" />
     </g>
-    <g role="img" aria-label="Yuki Hayashi" font-size="14.00" fill="#2e2148" transform="translate(156 67) scale(0.875)">
+    <g role="img" aria-label="Yuki Hayashi" font-size="14.00" fill="#ff7957" transform="translate(156 67) scale(0.875)">
       <use href="#glyph-89" x="0" />
       <use href="#glyph-117" x="8.0" />
       <use href="#glyph-107" x="16.0" />
@@ -113,7 +113,7 @@
       <use href="#glyph-104" x="80.0" />
       <use href="#glyph-105" x="88.0" />
     </g>
-    <g role="img" aria-label="アプリ・ツール一覧" font-size="14.00" fill="#2e2148" transform="translate(156 109) scale(0.875)">
+    <g role="img" aria-label="アプリ・ツール一覧" font-size="14.00" fill="#ff7957" transform="translate(156 109) scale(0.875)">
       <use href="#glyph-12450" x="0" />
       <use href="#glyph-12503" x="16.0" />
       <use href="#glyph-12522" x="32.0" />
@@ -125,7 +125,7 @@
       <use href="#glyph-35239" x="128.0" />
       <rect x="0" y="3" width="144.0" height="1" />
     </g>
-    <path d="M7.625 38.125V30.5H0.0V22.875H7.625V15.25H0.0V7.625H7.625V0.0H22.875V7.625H30.5V15.25H22.875V22.875H30.5V30.5H22.875V38.125ZM7.625 14.945H22.875V7.93H7.625ZM7.625 30.195H22.875V23.18H7.625Z M48.495 38.125V30.5H40.87V22.875H48.495V15.25H40.87V7.625H48.495V0.0H63.745V7.625H71.37V15.25H63.745V22.875H71.37V30.5H63.745V38.125ZM48.495 14.945H63.745V7.93H48.495ZM48.495 30.195H63.745V23.18H48.495Z M96.99 38.125V22.875H81.74V0.0H89.365V15.25H96.99V0.0H104.615V15.25H112.24V22.875H104.615V38.125Z M22.875 98.82000000000001V68.32000000000001H30.5V98.82000000000001ZM7.625 106.44500000000001V98.82000000000001H0.0V91.19500000000001H7.625V98.82000000000001H22.875V106.44500000000001Z M48.495 75.94500000000001V68.32000000000001H71.37V75.94500000000001ZM63.745 98.82000000000001V91.19500000000001H48.495V83.57000000000001H40.87V75.94500000000001H48.495V83.57000000000001H63.745V91.19500000000001H71.37V98.82000000000001ZM40.87 106.44500000000001V98.82000000000001H63.745V106.44500000000001Z" fill="#2e2148" transform="translate(24 31) scale(0.75)" />
+    <path d="M7.625 38.125V30.5H0.0V22.875H7.625V15.25H0.0V7.625H7.625V0.0H22.875V7.625H30.5V15.25H22.875V22.875H30.5V30.5H22.875V38.125ZM7.625 14.945H22.875V7.93H7.625ZM7.625 30.195H22.875V23.18H7.625Z M48.495 38.125V30.5H40.87V22.875H48.495V15.25H40.87V7.625H48.495V0.0H63.745V7.625H71.37V15.25H63.745V22.875H71.37V30.5H63.745V38.125ZM48.495 14.945H63.745V7.93H48.495ZM48.495 30.195H63.745V23.18H48.495Z M96.99 38.125V22.875H81.74V0.0H89.365V15.25H96.99V0.0H104.615V15.25H112.24V22.875H104.615V38.125Z M22.875 98.82000000000001V68.32000000000001H30.5V98.82000000000001ZM7.625 106.44500000000001V98.82000000000001H0.0V91.19500000000001H7.625V98.82000000000001H22.875V106.44500000000001Z M48.495 75.94500000000001V68.32000000000001H71.37V75.94500000000001ZM63.745 98.82000000000001V91.19500000000001H48.495V83.57000000000001H40.87V75.94500000000001H48.495V83.57000000000001H63.745V91.19500000000001H71.37V98.82000000000001ZM40.87 106.44500000000001V98.82000000000001H63.745V106.44500000000001Z" fill="#ff7957" transform="translate(24 31) scale(0.75)" />
     <g role="img" aria-label="Web" font-size="16.00" fill="var(--muted)" transform="translate(24 177) scale(1.0)">
       <use href="#glyph-87" x="0" />
       <use href="#glyph-101" x="8.0" />

@@ -20,8 +20,8 @@ STACK = [
 ]
 PIXEL_FONT = json.loads((ROOT / 'templates/profile/pixel-glyphs.json').read_text(encoding='utf-8'))
 PALETTES = {
-    'light': {'paper': '#faf8ff', 'ink': '#302447', 'muted': '#716182', 'panel': '#eae2fa'},
-    'dark': {'paper': '#261f34', 'ink': '#f3edff', 'muted': '#c4b5d9', 'panel': '#3c3051'},
+    'light': {'paper': '#f5f0e7', 'ink': '#25231f', 'muted': '#645d54', 'panel': '#e6dfd2'},
+    'dark': {'paper': '#22211e', 'ink': '#f1eadd', 'muted': '#bab1a2', 'panel': '#33302b'},
 }
 
 
@@ -101,16 +101,16 @@ def render_card(counts, updated_at, mobile=False):
             element('rect', {'x': 0, 'y': 3, 'width': advance, 'height': 1}, group)
 
     rect(0, 0, width, height, colors['paper'])
-    rect(0, 0, width if mobile else 269, 140 if mobile else main_height, '#d4c3ff')
+    rect(0, 0, width if mobile else 269, 140 if mobile else main_height, '#20201e')
     name_x, name_y = (156, 44) if mobile else (24, 44)
-    text(name_x, name_y, '林 悠暉', 20, '#2e2148')
-    text(name_x, name_y + 23, 'Yuki Hayashi', 14, '#2e2148')
-    text(name_x if mobile else 24, 109 if mobile else 318, 'アプリ・ツール一覧', 14, '#2e2148', underline=True)
+    text(name_x, name_y, '林 悠暉', 20, '#ff7957')
+    text(name_x, name_y + 23, 'Yuki Hayashi', 14, '#ff7957')
+    text(name_x if mobile else 24, 109 if mobile else 318, 'アプリ・ツール一覧', 14, '#ff7957', underline=True)
 
     # Outlines keep the selected Silkscreen lettering independent of installed fonts.
     wordmark = ET.parse(ROOT / 'templates/profile/wordmark.svg').getroot().find(f'{{{SVG}}}path')
     logo_x, logo_y, logo_scale = (24, 31, .75) if mobile else (30, 141, 1)
-    element('path', {'d': wordmark.attrib['d'], 'fill': '#2e2148',
+    element('path', {'d': wordmark.attrib['d'], 'fill': '#ff7957',
                      'transform': f'translate({logo_x} {logo_y}) scale({logo_scale})'}, body)
 
     stack_x, y = (24, 177) if mobile else (297, 66)
