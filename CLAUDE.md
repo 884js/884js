@@ -27,7 +27,8 @@
 - `.github/workflows/update-profile-stats.yml` が毎日06:17（日本時間）に公開・非公開の活動を1回集計し、`scripts/generate-profile-card.py` がPC用 `profile/card.svg` とスマホ用 `profile/card-mobile.svg` を更新する。
 - READMEの専用カードは「ピクセルサイン」案。紫の配色、ピクセル文字の884js、技術スタックと活動3項目を1枚にまとめ、カードからLPへリンクする。640px以下ではスマホ用へ切り替える。
 - 明暗の配色はSVG内で親ページの `color-scheme` に追従する。GitHubはテーマ指定のある `source` のmedia条件を上書きするため、READMEの `source` には画面幅だけを指定する。
-- デザイン・技術スタックは `scripts/generate-profile-card.py`、文字の形は `templates/profile/wordmark.svg`。ピクセル文字にはSilkscreenのアウトラインを使い、ライセンスを同じフォルダに保存している。更新処理はPython標準ライブラリのみで動く。
+- デザイン・技術スタックは `scripts/generate-profile-card.py`。ロゴは `templates/profile/wordmark.svg` のSilkscreen、本文・数字は `templates/profile/pixel-glyphs.json` のDotGothic16のアウトラインを使う。フォントが端末に入っていなくても同じ字形になる。ライセンスは同じフォルダに保存している。
+- 字形データは英数字・記号と本文で使う日本語を収録し、未収録文字があれば生成を中止する。日本語の文章を変える場合は字形データも確認する。更新処理はPython標準ライブラリのみで動く。
 - 集計には既存の Actions Secret `PROFILE_GITHUB_TOKEN` を使う。`884js` の classic PAT で `repo` と `read:user` が必要。組織の制限やSSO認証により、参照できないリポジトリは集計に含まれない。
 - 非公開の活動から公開するのはコミット・PR・レビューの件数のみ。トークン、非公開リポジトリ名、コード、PR本文は保存・出力しない。
 - 認証・集計・画像の検証に失敗したら更新を中止し、前回のカードを残す。カードのコミットには集計用PATではなく、workflowの `GITHUB_TOKEN` を使う。

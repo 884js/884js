@@ -51,22 +51,32 @@ class ProfileCardTests(unittest.TestCase):
             with self.subTest(mobile=mobile):
                 rendered = card.render_card([4518, 1657, 586], date(2026, 10, 18), mobile)
                 root = ET.fromstring(rendered)
-                texts = [''.join(node.itertext()) for node in root.iter(f'{{{card.SVG}}}text')]
+                texts = [node.get('aria-label') for node in root.iter(f'{{{card.SVG}}}g')]
                 self.assertTrue({'4,518', '1,657', '586'} <= set(texts))
                 self.assertIn('2026.10.18', rendered)
                 for palette in card.PALETTES.values():
                     self.assertIn(palette['paper'], rendered)
                 self.assertIn('@media (prefers-color-scheme: dark)', rendered)
                 self.assertEqual(root.attrib['width'], '320' if mobile else '640')
-                self.assertFalse({'script', 'image', 'foreignObject', 'a'} & {node.tag.split('}')[-1] for node in root.iter()})
+                self.assertFalse({'script', 'image', 'foreignObject', 'a', 'text'} & {node.tag.split('}')[-1] for node in root.iter()})
                 self.assertNotIn('private-repository', rendered)
+                self.assertIn('NestJS / Express / Hono', texts)
+                ids = {node.get('id') for node in root.iter()}
+                self.assertTrue(all(node.get('href', '').startswith('#') and node.get('href')[1:] in ids
+                                    for node in root.iter(f'{{{card.SVG}}}use')))
 
     def test_large_counts_fit_the_mobile_columns(self):
         rendered = card.render_card([999999999] * 3, date(2026, 10, 18), True)
         root = ET.fromstring(rendered)
-        values = [node for node in root.iter(f'{{{card.SVG}}}text') if node.text == '999,999,999']
+        values = [node for node in root.iter(f'{{{card.SVG}}}g') if node.get('aria-label') == '999,999,999']
         self.assertEqual(len(values), 3)
         self.assertTrue(all(11 <= float(node.attrib['font-size']) <= 16 for node in values))
+
+    def test_pixel_font_measures_text_and_rejects_missing_glyphs(self):
+        self.assertEqual(card.text_width('NestJS', 16), 48)
+        self.assertEqual(card.text_width('林', 16), 16)
+        with self.assertRaisesRegex(ValueError, 'Missing pixel glyph'):
+            card.text_width('😀', 16)
 
     def test_cli_writes_all_variants_and_preserves_them_on_bad_input(self):
         self.path.write_text(source())

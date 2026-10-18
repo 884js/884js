@@ -3,6 +3,7 @@
 
 import argparse
 from datetime import datetime, timedelta, timezone
+import json
 from pathlib import Path
 import re
 import xml.etree.ElementTree as ET
@@ -12,15 +13,23 @@ SVG = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', SVG)
 LABELS = ['Total Commits (last year):', 'Total PRs:', 'Total PRs Reviewed:']
 STACK = [
-    ('Web', 'TypeScript / React / Next.js'),
-    ('モバイル', 'React Native / Expo'),
-    ('バックエンド', 'Go / Hono / Ruby on Rails'),
-    ('インフラ', 'Cloudflare / AWS'),
+    ('Web', ['TypeScript / React / Next.js']),
+    ('モバイル', ['React Native / Expo']),
+    ('バックエンド', ['NestJS / Express / Hono', 'Go / Ruby on Rails']),
+    ('インフラ', ['Cloudflare / AWS']),
 ]
+PIXEL_FONT = json.loads((ROOT / 'templates/profile/pixel-glyphs.json').read_text(encoding='utf-8'))
 PALETTES = {
     'light': {'paper': '#faf8ff', 'ink': '#302447', 'muted': '#716182', 'panel': '#eae2fa'},
     'dark': {'paper': '#261f34', 'ink': '#f3edff', 'muted': '#c4b5d9', 'panel': '#3c3051'},
 }
+
+
+def text_width(value, size):
+    try:
+        return sum(PIXEL_FONT['glyphs'][char]['advance'] for char in value) * size / PIXEL_FONT['units_per_em']
+    except KeyError as error:
+        raise ValueError(f'Missing pixel glyph: {error.args[0]}') from error
 
 
 def read_counts(path):
@@ -39,12 +48,11 @@ def read_counts(path):
 
 def render_card(counts, updated_at, mobile=False):
     colors = {name: f'var(--{name})' for name in PALETTES['light']}
-    width, height = (320, 588) if mobile else (640, 530)
-    main_height = 412 if mobile else 350
+    width, height = (320, 638) if mobile else (640, 530)
+    main_height = 448 if mobile else 350
     root = ET.Element(f'{{{SVG}}}svg', {
         'width': str(width), 'height': str(height), 'viewBox': f'0 0 {width} {height}',
         'role': 'img', 'aria-labelledby': 'title description',
-        'font-family': 'Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif',
         'fill': colors['ink'],
     })
 
@@ -53,7 +61,7 @@ def render_card(counts, updated_at, mobile=False):
 
     element('title', {'id': 'title'}).text = '884js / 林 悠暉'
     element('desc', {'id': 'description'}).text = (
-        '技術スタック: ' + '、'.join(f'{name}: {value}' for name, value in STACK)
+        '技術スタック: ' + '、'.join(f'{name}: {" / ".join(lines)}' for name, lines in STACK)
         + f'。公開・非公開の活動: コミット（過去1年）{counts[0]:,}、'
         + f'PR（累計）{counts[1]:,}、レビュー（過去1年）{counts[2]:,}。'
         + f'{updated_at:%Y年%m月%d日}時点。'
@@ -62,22 +70,42 @@ def render_card(counts, updated_at, mobile=False):
     light = ';'.join(f'--{name}:{color}' for name, color in PALETTES['light'].items())
     dark = ';'.join(f'--{name}:{color}' for name, color in PALETTES['dark'].items())
     element('style').text = f':root {{{light}}} @media (prefers-color-scheme: dark) {{:root {{{dark}}}}}'
-    clip = element('clipPath', {'id': 'card'}, element('defs'))
+    definitions = element('defs')
+    clip = element('clipPath', {'id': 'card'}, definitions)
     element('rect', {'width': width, 'height': height, 'rx': 16}, clip)
     body = element('g', {'clip-path': 'url(#card)'})
 
     def rect(x, y, w, h, color):
         element('rect', {'x': x, 'y': y, 'width': w, 'height': h, 'fill': color}, body)
 
-    def text(x, y, value, size=14, color=None, **attributes):
-        element('text', {'x': x, 'y': y, 'font-size': size, 'fill': color or colors['ink'], **attributes}, body).text = value
+    used_glyphs = set()
+
+    def text(x, y, value, size=16, color=None, underline=False):
+        measured = text_width(value, size)
+        if x + measured > width - 16:
+            raise ValueError(f'Profile text exceeds the card width: {value}')
+        scale = size / PIXEL_FONT['units_per_em']
+        group = element('g', {'role': 'img', 'aria-label': value, 'font-size': f'{size:.2f}',
+                              'fill': color or colors['ink'], 'transform': f'translate({x} {y}) scale({scale})'}, body)
+        advance = 0
+        for char in value:
+            glyph = PIXEL_FONT['glyphs'][char]
+            if glyph['path']:
+                glyph_id = f'glyph-{ord(char)}'
+                if char not in used_glyphs:
+                    element('path', {'id': glyph_id, 'd': glyph['path']}, definitions)
+                    used_glyphs.add(char)
+                element('use', {'href': f'#{glyph_id}', 'x': advance}, group)
+            advance += glyph['advance']
+        if underline:
+            element('rect', {'x': 0, 'y': 3, 'width': advance, 'height': 1}, group)
 
     rect(0, 0, width, height, colors['paper'])
     rect(0, 0, width if mobile else 269, 140 if mobile else main_height, '#d4c3ff')
     name_x, name_y = (156, 44) if mobile else (24, 44)
-    text(name_x, name_y, '林 悠暉', 16 if mobile else 18, '#2e2148', **{'letter-spacing': '2px'})
-    text(name_x, name_y + 23, 'Yuki Hayashi', 13 if mobile else 12, '#2e2148')
-    text(name_x if mobile else 24, 109 if mobile else 318, 'アプリ・ツール一覧', 12, '#2e2148', **{'text-decoration': 'underline'})
+    text(name_x, name_y, '林 悠暉', 20, '#2e2148')
+    text(name_x, name_y + 23, 'Yuki Hayashi', 14, '#2e2148')
+    text(name_x if mobile else 24, 109 if mobile else 318, 'アプリ・ツール一覧', 14, '#2e2148', underline=True)
 
     # Outlines keep the selected Silkscreen lettering independent of installed fonts.
     wordmark = ET.parse(ROOT / 'templates/profile/wordmark.svg').getroot().find(f'{{{SVG}}}path')
@@ -85,11 +113,12 @@ def render_card(counts, updated_at, mobile=False):
     element('path', {'d': wordmark.attrib['d'], 'fill': '#2e2148',
                      'transform': f'translate({logo_x} {logo_y}) scale({logo_scale})'}, body)
 
-    stack_x, stack_y, stack_gap = (24, 177, 60) if mobile else (297, 72, 70)
-    for index, (name, value) in enumerate(STACK):
-        y = stack_y + stack_gap * index
-        text(stack_x, y, name, 14 if mobile else 12, colors['muted'])
-        text(stack_x, y + 24, value, 15 if mobile else 14)
+    stack_x, y = (24, 177) if mobile else (297, 66)
+    for name, lines in STACK:
+        text(stack_x, y, name, 16 if mobile else 14, colors['muted'])
+        for index, value in enumerate(lines):
+            text(stack_x, y + 24 * (index + 1), value)
+        y += 42 + 24 * len(lines)
 
     rect(0, main_height, width, 130 if mobile else 134, colors['panel'])
     metric_names = [('コミット', '過去1年'), ('PR', '累計'), ('レビュー', '過去1年')]
@@ -98,12 +127,15 @@ def render_card(counts, updated_at, mobile=False):
         x = (18 + index * 98) if mobile else (26 + index * 205)
         y = main_height + (47 if mobile else 53)
         available = 86 if mobile else 175
-        size = min(30 if mobile else 33, available / (len(value) * .62))
-        text(x, y, value, f'{size:.2f}')
-        text(x, y + 29, name, 13 if mobile else 12)
-        text(x, y + 48, period, 12 if mobile else 11, colors['muted'])
-    text(22 if mobile else 26, height - 19,
-         f'公開・非公開の集計 / {updated_at:%Y.%m.%d} 時点', 12 if mobile else 11, colors['muted'])
+        size = min(32 if mobile else 36, available / text_width(value, 1))
+        text(x, y, value, size)
+        text(x, y + 29, name, 14)
+        text(x, y + 48, period, 14, colors['muted'])
+    if mobile:
+        text(22, height - 36, '公開・非公開の集計', 14, colors['muted'])
+        text(22, height - 16, f'{updated_at:%Y.%m.%d} 時点', 14, colors['muted'])
+    else:
+        text(26, height - 19, f'公開・非公開の集計 / {updated_at:%Y.%m.%d} 時点', 14, colors['muted'])
     ET.indent(root, space='  ')
     return ET.tostring(root, encoding='unicode') + '\n'
 
