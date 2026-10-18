@@ -1,0 +1,95 @@
+name: Update profile stats
+
+on:
+  schedule:
+    - cron: '17 21 * * *' # 毎日 06:17 JST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-stats
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.repository == '884js/884js' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Check private activity access
+        env:
+          GH_TOKEN: ${{ secrets.PROFILE_GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import subprocess
+
+          if not os.environ.get('GH_TOKEN'):
+              raise SystemExit('PROFILE_GITHUB_TOKEN is missing.')
+          result = subprocess.run(
+              ['gh', 'api', '--include', 'user', '--jq', '.login'],
+              capture_output=True, text=True,
+          )
+          if result.returncode:
+              raise SystemExit('PROFILE_GITHUB_TOKEN is invalid or expired.')
+          lines = result.stdout.splitlines()
+          scopes = set()
+          for line in lines:
+              if line.lower().startswith('x-oauth-scopes:'):
+                  scopes = {scope.strip() for scope in line.split(':', 1)[1].split(',')}
+          if not lines or lines[-1].strip() != '884js':
+              raise SystemExit('PROFILE_GITHUB_TOKEN must belong to 884js.')
+          if 'repo' not in scopes or not scopes.intersection({'read:user', 'user'}):
+              raise SystemExit('PROFILE_GITHUB_TOKEN requires repo and read:user scopes.')
+          print('Private activity access confirmed.')
+          PY
+
+      - name: Generate light card
+        uses: stats-organization/github-readme-stats-action@2c498845f71017821efaad14293ebc736156ef21 # v2
+        with:
+          card: stats
+          options: username=884js&hide=stars,issues,contribs&show=reviews&hide_rank=true&hide_title=true&show_icons=true&number_format=long&hide_border=true&disable_animations=true&role=OWNER,ORGANIZATION_MEMBER,COLLABORATOR&theme=light_github&bg_color=00000000
+          path: profile/stats-light.svg
+          token: ${{ secrets.PROFILE_GITHUB_TOKEN }}
+          core_version: 2.2.1
+          fail_on_error: true
+
+      - name: Generate dark card
+        uses: stats-organization/github-readme-stats-action@2c498845f71017821efaad14293ebc736156ef21 # v2
+        with:
+          card: stats
+          options: username=884js&hide=stars,issues,contribs&show=reviews&hide_rank=true&hide_title=true&show_icons=true&number_format=long&hide_border=true&disable_animations=true&role=OWNER,ORGANIZATION_MEMBER,COLLABORATOR&theme=dark_github&bg_color=00000000
+          path: profile/stats-dark.svg
+          token: ${{ secrets.PROFILE_GITHUB_TOKEN }}
+          core_version: 2.2.1
+          fail_on_error: true
+
+      - name: Check generated cards
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          labels = ['Total Commits (last year):', 'Total PRs:', 'Total PRs Reviewed:']
+          for path in [Path('profile/stats-light.svg'), Path('profile/stats-dark.svg')]:
+              root = ET.parse(path).getroot()
+              texts = [''.join(node.itertext()).strip() for node in root.iter('{http://www.w3.org/2000/svg}text')]
+              assert len(texts) == 6 and texts[::2] == labels, f'Unexpected stats card: {path}'
+              assert all(value.replace(',', '').isdigit() for value in texts[1::2]), f'Invalid counts: {path}'
+          print('Both cards contain only commits, pull requests, and reviews.')
+          PY
+
+      - name: Commit cards
+        run: |
+          git add -- profile/stats-light.svg profile/stats-dark.svg
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'GitHub活動カードを更新'
+          git push
