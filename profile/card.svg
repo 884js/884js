@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="530" viewBox="0 0 640 530" role="img" aria-labelledby="title description" font-family="Arial, &quot;Hiragino Kaku Gothic ProN&quot;, &quot;Yu Gothic&quot;, Meiryo, sans-serif" fill="var(--ink)">
   <title id="title">884js / 林 悠暉</title>
-  <desc id="description">技術スタック: Web: TypeScript / React / Next.js、モバイル: React Native / Expo、バックエンド: Go / Hono / Ruby on Rails、インフラ: Cloudflare / AWS。公開・非公開の活動: コミット（過去1年）4,518、PR（累計）1,657、レビュー（過去1年）586。2026年10月18日時点。</desc>
+  <desc id="description">技術スタック: Web: TypeScript / React / Next.js、モバイル: React Native / Expo、バックエンド: Go / Hono / Ruby on Rails、インフラ: Cloudflare / AWS。公開・非公開の活動: コミット（過去1年）4,520、PR（累計）1,657、レビュー（過去1年）586。2026年10月18日時点。</desc>
   <style>:root {--paper:#faf8ff;--ink:#302447;--muted:#716182;--panel:#eae2fa} @media (prefers-color-scheme: dark) {:root {--paper:#261f34;--ink:#f3edff;--muted:#c4b5d9;--panel:#3c3051}}</style>
   <defs>
     <clipPath id="card">
@@ -23,7 +23,7 @@
     <text x="297" y="282" font-size="12" fill="var(--muted)">インフラ</text>
     <text x="297" y="306" font-size="14" fill="var(--ink)">Cloudflare / AWS</text>
     <rect x="0" y="350" width="640" height="134" fill="var(--panel)" />
-    <text x="26" y="403" font-size="33.00" fill="var(--ink)">4,518</text>
+    <text x="26" y="403" font-size="33.00" fill="var(--ink)">4,520</text>
     <text x="26" y="432" font-size="12" fill="var(--ink)">コミット</text>
     <text x="26" y="451" font-size="11" fill="var(--muted)">過去1年</text>
     <text x="231" y="403" font-size="33.00" fill="var(--ink)">1,657</text>
