@@ -11,9 +11,9 @@
 
 ## GitHubでの活動
 
-公開リポジトリの集計です。
+公開・非公開リポジトリの集計です。
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github-stats-extended.vercel.app/api?username=884js&amp;hide=stars%2Cissues%2Ccontribs&amp;show=reviews&amp;hide_rank=true&amp;hide_title=true&amp;show_icons=true&amp;hide_border=true&amp;disable_animations=true&amp;role=OWNER%2CORGANIZATION_MEMBER%2CCOLLABORATOR&amp;theme=dark_github&amp;bg_color=00000000">
-  <img alt="GitHubのコミット数、Pull Request数、レビュー数" src="https://github-stats-extended.vercel.app/api?username=884js&amp;hide=stars%2Cissues%2Ccontribs&amp;show=reviews&amp;hide_rank=true&amp;hide_title=true&amp;show_icons=true&amp;hide_border=true&amp;disable_animations=true&amp;role=OWNER%2CORGANIZATION_MEMBER%2CCOLLABORATOR&amp;theme=light_github&amp;bg_color=00000000">
+  <source media="(prefers-color-scheme: dark)" srcset="./profile/stats-dark.svg">
+  <img alt="GitHubのコミット数、Pull Request数、レビュー数" src="./profile/stats-light.svg">
 </picture>
