@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="530" viewBox="0 0 640 530" role="img" aria-labelledby="title description" fill="var(--ink)">
   <title id="title">884js / 林 悠暉</title>
-  <desc id="description">技術スタック: Web: TypeScript / React / Next.js、モバイル: React Native / Expo、バックエンド: NestJS / Express / Hono / Go / Ruby on Rails、インフラ: Cloudflare / AWS。公開・非公開の活動: コミット（過去1年）4,624、PR（累計）1,713、レビュー（過去1年）589。2026年10月31日時点。</desc>
+  <desc id="description">技術スタック: Web: TypeScript / React / Next.js、モバイル: React Native / Expo、バックエンド: NestJS / Express / Hono / Go / Ruby on Rails、インフラ: Cloudflare / AWS。公開・非公開の活動: コミット（過去1年）4,626、PR（累計）1,714、レビュー（過去1年）589。2026年11月01日時点。</desc>
   <style>:root {--paper:#f5f0e7;--ink:#25231f;--muted:#645d54;--panel:#e6dfd2} @media (prefers-color-scheme: dark) {:root {--paper:#22211e;--ink:#f1eadd;--muted:#bab1a2;--panel:#33302b}}</style>
   <defs>
     <clipPath id="card">
@@ -75,7 +75,6 @@
     <path id="glyph-49" d="M4.4 -11.44H2.432V-12.59H5.568V0.448H4.4Z" />
     <path id="glyph-24180" d="M0.496 -3.712H3.472V-7.664H8.416V-10.46H3.648V-8.48H2.656V-7.504H1.504V-8.656H2.496V-10.64H3.472V-13.6H4.64V-11.63H14.51V-10.46H9.584V-7.664H14.51V-6.512H9.584V-3.712H15.5V-2.56H9.584V1.424H8.416V-2.56H0.496ZM8.416 -3.712V-6.512H4.64V-3.712Z" />
     <path id="glyph-55" d="M2.448 -2.704H3.424V-5.68H4.416V-8.64H5.408V-10.62H6.4V-11.44H0.448V-12.59H7.552V-10.45H6.56V-8.464H5.584V-5.504H4.592V-2.544H3.6V0.448H2.448Z" />
-    <path id="glyph-51" d="M1.456 -1.552H0.448V-3.696H1.632V-1.712H2.608V-0.736H5.408V-1.712H6.4V-4.512H5.408V-5.504H2.448V-6.672H5.408V-7.648H6.4V-10.45H5.408V-11.44H2.608V-10.45H1.632V-8.464H0.448V-10.62H1.456V-11.62H2.448V-12.59H5.584V-11.62H6.56V-10.62H7.552V-7.488H6.56V-6.496H5.584V-5.68H6.56V-4.688H7.552V-1.552H6.56V-0.56H5.584V0.448H2.448V-0.56H1.456Z" />
     <path id="glyph-80" d="M0.448 -12.59H5.584V-11.62H6.56V-10.62H7.552V-6.496H6.56V-5.504H5.584V-4.512H1.632V0.448H0.448ZM5.408 -5.68V-6.672H6.4V-10.45H5.408V-11.44H1.632V-5.68Z" />
     <path id="glyph-32047" d="M1.504 -3.712H7.424V-4.528H5.456V-5.52H3.472V-6.688H5.632V-5.696H6.448V-6.688H7.424V-7.504H2.496V-13.6H13.54V-7.504H8.592V-6.512H7.6V-4.704H9.408V-5.696H11.38V-6.688H12.54V-5.52H11.55V-4.528H9.584V-3.712H12.37V-4.704H13.54V-3.712H14.51V-2.72H15.5V-1.568H14.34V-2.56H8.592V1.424H7.424V-2.56H1.504ZM12.37 -11.63V-12.45H8.592V-11.63ZM7.424 -11.63V-12.45H3.648V-11.63ZM7.424 -8.656V-10.46H3.648V-8.656ZM12.37 -8.656V-10.46H8.592V-8.656ZM2.496 0.24V-0.752H4.464V-1.728H5.632V-0.576H4.64V0.432H2.656V1.424H0.496V0.24ZM10.4 -1.728H12.54V-0.752H14.51V0.24H15.5V1.424H14.34V0.432H12.37V-0.576H10.4Z" />
     <path id="glyph-35336" d="M7.424 -7.664H10.4V-13.6H11.55V-7.664H15.5V-6.512H11.55V1.424H10.4V-6.512H7.424ZM1.504 -12.61H6.608V-11.46H1.504ZM0.496 -9.648H7.6V-8.48H0.496ZM1.504 -7.664H6.608V-6.512H1.504ZM1.504 -5.696H6.608V-4.528H1.504ZM1.504 -3.712H6.608V0.432H2.656V1.424H1.504ZM5.456 -0.752V-2.56H2.656V-0.752Z" />
@@ -251,12 +250,12 @@
       <use href="#glyph-83" x="120.0" />
     </g>
     <rect x="0" y="350" width="640" height="134" fill="var(--panel)" />
-    <g role="img" aria-label="4,624" font-size="36.00" fill="var(--ink)" transform="translate(26 403) scale(2.25)">
+    <g role="img" aria-label="4,626" font-size="36.00" fill="var(--ink)" transform="translate(26 403) scale(2.25)">
       <use href="#glyph-52" x="0" />
       <use href="#glyph-44" x="8.0" />
       <use href="#glyph-54" x="16.0" />
       <use href="#glyph-50" x="24.0" />
-      <use href="#glyph-52" x="32.0" />
+      <use href="#glyph-54" x="32.0" />
     </g>
     <g role="img" aria-label="コミット" font-size="14.00" fill="var(--ink)" transform="translate(26 432) scale(0.875)">
       <use href="#glyph-12467" x="0" />
@@ -270,12 +269,12 @@
       <use href="#glyph-49" x="32.0" />
       <use href="#glyph-24180" x="40.0" />
     </g>
-    <g role="img" aria-label="1,713" font-size="36.00" fill="var(--ink)" transform="translate(231 403) scale(2.25)">
+    <g role="img" aria-label="1,714" font-size="36.00" fill="var(--ink)" transform="translate(231 403) scale(2.25)">
       <use href="#glyph-49" x="0" />
       <use href="#glyph-44" x="8.0" />
       <use href="#glyph-55" x="16.0" />
       <use href="#glyph-49" x="24.0" />
-      <use href="#glyph-51" x="32.0" />
+      <use href="#glyph-52" x="32.0" />
     </g>
     <g role="img" aria-label="PR" font-size="14.00" fill="var(--ink)" transform="translate(231 432) scale(0.875)">
       <use href="#glyph-80" x="0" />
@@ -302,7 +301,7 @@
       <use href="#glyph-49" x="32.0" />
       <use href="#glyph-24180" x="40.0" />
     </g>
-    <g role="img" aria-label="公開・非公開の集計 / 2026.10.31 時点" font-size="14.00" fill="var(--muted)" transform="translate(26 511) scale(0.875)">
+    <g role="img" aria-label="公開・非公開の集計 / 2026.11.01 時点" font-size="14.00" fill="var(--muted)" transform="translate(26 511) scale(0.875)">
       <use href="#glyph-20844" x="0" />
       <use href="#glyph-38283" x="16.0" />
       <use href="#glyph-12539" x="32.0" />
@@ -319,9 +318,9 @@
       <use href="#glyph-54" x="192.0" />
       <use href="#glyph-46" x="200.0" />
       <use href="#glyph-49" x="208.0" />
-      <use href="#glyph-48" x="216.0" />
+      <use href="#glyph-49" x="216.0" />
       <use href="#glyph-46" x="224.0" />
-      <use href="#glyph-51" x="232.0" />
+      <use href="#glyph-48" x="232.0" />
       <use href="#glyph-49" x="240.0" />
       <use href="#glyph-26178" x="256.0" />
       <use href="#glyph-28857" x="272.0" />
