@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="638" viewBox="0 0 320 638" role="img" aria-labelledby="title description" fill="var(--ink)">
   <title id="title">884js / 林 悠暉</title>
-  <desc id="description">技術スタック: Web: TypeScript / React / Next.js、モバイル: React Native / Expo、バックエンド: NestJS / Express / Hono / Go / Ruby on Rails、インフラ: Cloudflare / AWS。公開・非公開の活動: コミット（過去1年）2,499、PR（累計）1,186、レビュー（過去1年）32。2026年11月13日時点。</desc>
+  <desc id="description">技術スタック: Web: TypeScript / React / Next.js、モバイル: React Native / Expo、バックエンド: NestJS / Express / Hono / Go / Ruby on Rails、インフラ: Cloudflare / AWS。公開・非公開の活動: コミット（過去1年）2,499、PR（累計）1,186、レビュー（過去1年）32。2026年11月14日時点。</desc>
   <style>:root {--paper:#f5f0e7;--ink:#25231f;--muted:#645d54;--panel:#e6dfd2} @media (prefers-color-scheme: dark) {:root {--paper:#22211e;--ink:#f1eadd;--muted:#bab1a2;--panel:#33302b}}</style>
   <defs>
     <clipPath id="card">
@@ -310,7 +310,7 @@
       <use href="#glyph-38598" x="112.0" />
       <use href="#glyph-35336" x="128.0" />
     </g>
-    <g role="img" aria-label="2026.11.13 時点" font-size="14.00" fill="var(--muted)" transform="translate(22 622) scale(0.875)">
+    <g role="img" aria-label="2026.11.14 時点" font-size="14.00" fill="var(--muted)" transform="translate(22 622) scale(0.875)">
       <use href="#glyph-50" x="0" />
       <use href="#glyph-48" x="8.0" />
       <use href="#glyph-50" x="16.0" />
@@ -320,7 +320,7 @@
       <use href="#glyph-49" x="48.0" />
       <use href="#glyph-46" x="56.0" />
       <use href="#glyph-49" x="64.0" />
-      <use href="#glyph-51" x="72.0" />
+      <use href="#glyph-52" x="72.0" />
       <use href="#glyph-26178" x="88.0" />
       <use href="#glyph-28857" x="104.0" />
     </g>
